@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand-primary: #0A6070;
+  --color-brand-primary-dark: #084D5A;
+  --color-brand-primary-light: #1AADA0;
+  --color-brand-teal: #1AADA0;
+  --color-brand-teal-dark: #0E8A80;
+  --color-brand-teal-light: #2DBFA0;
+  --color-accent: #E8644A;
+  --color-gold: #E8A020;
+  --color-cream: #FBF8F3;
+  --color-cream-dark: #F2EDE4;
+  --color-success: #2D8A5F;
+  --color-text: #1A2B35;
+  --color-text-muted: #5A7280;
+  --color-border: #D8E4E8;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1.2;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm rounded-full transition-all duration-200;
+    background: #0A6070;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .btn-primary:hover { background: #084D5A; }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-6 py-3 font-bold text-sm rounded-full transition-all duration-200;
+    border: 2px solid #0A6070;
+    color: #0A6070;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .btn-secondary:hover { background: #0A6070; color: white; }
+
+  .btn-white {
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-white text-[#0A6070] font-bold text-sm rounded-full hover:bg-[#FBF8F3] transition-all duration-200 shadow-sm hover:shadow-md;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .btn-outline-white {
+    @apply inline-flex items-center gap-2 px-6 py-3 border-2 border-white text-white font-bold text-sm rounded-full hover:bg-white hover:text-[#0A6070] transition-all duration-200;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-widest;
+    color: #1AADA0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .section-title {
+    @apply text-4xl md:text-5xl font-light text-[#1A2B35];
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .section-title-white {
+    @apply text-4xl md:text-5xl font-light text-white;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--color-cream); }
+::-webkit-scrollbar-thumb { background: #0A6070; border-radius: 3px; opacity: 0.5; }
+
+/* Page animation */
+.page-enter {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Hero gradient */
+.hero-gradient {
+  background: linear-gradient(135deg, #0A6070 0%, #1AADA0 50%, #0A6070 100%);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
