@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 
 export type UserRole = 'super_admin' | 'admin' | 'content_manager' | 'finance_manager' | 'database_manager' | 'support_agent' | 'event_coordinator';
 
-export type Permission = 'website' | 'database' | 'contact' | 'donations' | 'events' | 'documents' | 'finance' | 'users' | 'settings' | 'trash' | 'subscribers';
+export type Permission = 'website' | 'database' | 'contact' | 'donations' | 'events' | 'documents' | 'finance' | 'users' | 'settings' | 'trash' | 'subscribers' | 'forms';
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   super_admin: 'Super Admin',
@@ -15,7 +15,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   event_coordinator: 'Event Coordinator',
 };
 
-export const ALL_PERMISSIONS: Permission[] = ['website', 'database', 'contact', 'donations', 'events', 'documents', 'finance', 'users', 'settings', 'trash', 'subscribers'];
+export const ALL_PERMISSIONS: Permission[] = ['website', 'database', 'contact', 'donations', 'events', 'documents', 'finance', 'users', 'settings', 'trash', 'subscribers', 'forms'];
 
 interface AdminAuthContextType {
   isAuthenticated: boolean;

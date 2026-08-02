@@ -24,6 +24,8 @@ import SearchResults from './pages/SearchResults';
 import JoinOurTeam from './pages/JoinOurTeam';
 import DonationsToday from './pages/DonationsToday';
 import Unsubscribe from './pages/Unsubscribe';
+import FormsIndex from './pages/FormsIndex';
+import FormFill from './pages/FormFill';
 
 import LoginPage from './dashboard/LoginPage';
 import DashboardLayout from './dashboard/DashboardLayout';
@@ -39,6 +41,7 @@ import UsersPage from './dashboard/pages/UsersPage';
 import SettingsPage from './dashboard/pages/SettingsPage';
 import TrashManager from './dashboard/pages/TrashManager';
 import SubscribersPage from './dashboard/pages/SubscribersPage';
+import FormsManager from './dashboard/pages/FormsManager';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -65,7 +68,7 @@ function DashboardPage({ component: Component }: { component: React.ComponentTyp
 function AppRoutes() {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith('/dashboard');
-  const isStandalone = location.pathname === '/join-our-team' || location.pathname === '/donations-of-today' || location.pathname === '/unsubscribe';
+  const isStandalone = location.pathname === '/join-our-team' || location.pathname === '/donations-of-today' || location.pathname === '/unsubscribe' || location.pathname === '/forms' || location.pathname.startsWith('/forms/');
 
   if (isDashboard) {
     return (
@@ -83,6 +86,7 @@ function AppRoutes() {
         <Route path="/dashboard/settings" element={<DashboardPage component={SettingsPage} />} />
         <Route path="/dashboard/trash" element={<DashboardPage component={TrashManager} />} />
         <Route path="/dashboard/subscribers" element={<DashboardPage component={SubscribersPage} />} />
+        <Route path="/dashboard/forms" element={<DashboardPage component={FormsManager} />} />
         <Route path="/dashboard/programs" element={<Navigate to="/dashboard/website" replace />} />
         <Route path="/dashboard/stories" element={<Navigate to="/dashboard/website" replace />} />
         <Route path="/dashboard/team" element={<Navigate to="/dashboard/database" replace />} />
@@ -103,6 +107,8 @@ function AppRoutes() {
         <Route path="/join-our-team" element={<JoinOurTeam />} />
         <Route path="/donations-of-today" element={<DonationsToday />} />
         <Route path="/unsubscribe" element={<Unsubscribe />} />
+        <Route path="/forms" element={<FormsIndex />} />
+        <Route path="/forms/:slug" element={<FormFill />} />
       </Routes>
     );
   }

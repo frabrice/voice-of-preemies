@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { Camera, CheckCircle, Loader2, ChevronDown, AlertCircle, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -436,11 +437,13 @@ export default function JoinOurTeam() {
     <div className="min-h-screen bg-[#F5F8FA] flex flex-col">
       {/* ── Header ── */}
       <header className="bg-white border-b border-[#E8EFF2] px-5 py-4 flex items-center gap-3">
-        <img
-          src="https://res.cloudinary.com/dyqitacqz/image/upload/v1779117338/Horizontal_Voice_Of_Preemies_svmz0n.png"
-          alt="Voice of Preemies Rwanda"
-          className="h-8 w-auto"
-        />
+        <Link to="/">
+          <img
+            src="https://res.cloudinary.com/dyqitacqz/image/upload/v1779117338/Horizontal_Voice_Of_Preemies_svmz0n.png"
+            alt="Voice of Preemies Rwanda"
+            className="h-8 w-auto"
+          />
+        </Link>
       </header>
 
       {/* ── Content ── */}

@@ -4,14 +4,14 @@ import Drawer from '../components/Drawer';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { Plus, Pencil, Trash2, Search, Eye, EyeOff, Star, Calendar, ExternalLink, Send } from 'lucide-react';
 import { notifyPublication } from '../components/shared';
-import { ImageUploadField } from '../components/UploadField';
+import { ImageUploadField, MultiImageUploadField } from '../components/UploadField';
 
-interface Article { id: string; slug: string; title: string; excerpt: string; content: string; tag: string; date: string; image_url: string; published: boolean; featured: boolean; }
+interface Article { id: string; slug: string; title: string; excerpt: string; content: string; tag: string; date: string; image_url: string; gallery_urls: string[]; published: boolean; featured: boolean; }
 type Form = Omit<Article, 'id'>;
 type Mode = 'view' | 'add' | 'edit';
 
 const TAGS = ['Event', 'Partnership', 'Story', 'Research', 'Education', 'Advocacy', 'News'];
-const EMPTY: Form = { slug: '', title: '', excerpt: '', content: '', tag: 'News', date: new Date().toISOString().split('T')[0], image_url: '', published: false, featured: false };
+const EMPTY: Form = { slug: '', title: '', excerpt: '', content: '', tag: 'News', date: new Date().toISOString().split('T')[0], image_url: '', gallery_urls: [], published: false, featured: false };
 const TAG_CLR: Record<string, string> = { Event: 'bg-blue-100 text-blue-700', Partnership: 'bg-emerald-100 text-emerald-700', Story: 'bg-amber-100 text-amber-700', Research: 'bg-violet-100 text-violet-700', Education: 'bg-cyan-100 text-cyan-700', Advocacy: 'bg-rose-100 text-rose-700', News: 'bg-slate-100 text-slate-600' };
 const inp = 'w-full px-3 py-2.5 border border-slate-200 rounded-xl text-[13px] text-[#0f172a] focus:outline-none focus:border-[#0A6070] focus:ring-2 focus:ring-[#0A6070]/10 transition-all bg-white';
 const Lbl = ({ t }: { t: string }) => <label className="block text-[10px] font-bold text-[#64748B] uppercase tracking-widest mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{t}</label>;
@@ -37,7 +37,7 @@ export default function NewsManager() {
 
   const openView = (a: Article) => { setSelected(a); setMode('view'); };
   const openAdd = () => { setForm(EMPTY); setSelected(null); setMode('add'); };
-  const openEdit = (a: Article) => { setForm({ slug: a.slug, title: a.title, excerpt: a.excerpt, content: a.content, tag: a.tag, date: a.date, image_url: a.image_url, published: a.published, featured: a.featured }); setSelected(a); setMode('edit'); };
+  const openEdit = (a: Article) => { setForm({ slug: a.slug, title: a.title, excerpt: a.excerpt, content: a.content, tag: a.tag, date: a.date, image_url: a.image_url, gallery_urls: a.gallery_urls ?? [], published: a.published, featured: a.featured }); setSelected(a); setMode('edit'); };
   const close = () => { setMode(null); setSelected(null); };
 
   const save = async () => {
@@ -172,6 +172,14 @@ export default function NewsManager() {
             </div>
             {selected.excerpt && <div className="p-3 bg-slate-50 rounded-xl border-l-4 border-[#0A6070]"><p className="text-[12px] text-[#334155] italic leading-relaxed" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{selected.excerpt}</p></div>}
             {selected.content && <div className="space-y-1"><p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Full Content</p><p className="text-[13px] text-[#334155] leading-relaxed whitespace-pre-wrap" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{selected.content}</p></div>}
+            {selected.gallery_urls?.length > 0 && (
+              <div>
+                <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Gallery ({selected.gallery_urls.length})</p>
+                <div className="flex flex-wrap gap-2">
+                  {selected.gallery_urls.map((url, i) => <img key={i} src={url} alt="" className="w-16 h-16 object-cover rounded-lg border border-slate-200" />)}
+                </div>
+              </div>
+            )}
             {selected.image_url && <a href={selected.image_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-[#0A6070] hover:underline" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}><ExternalLink className="w-3 h-3" /> View image</a>}
             {selected.published && <a href={`/news/${selected.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-[#0A6070] hover:underline ml-4" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}><ExternalLink className="w-3 h-3" /> View live page</a>}
           </div>
@@ -194,6 +202,7 @@ export default function NewsManager() {
               <div><Lbl t="Date" /><input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} className={inp} style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }} /></div>
             </div>
             <ImageUploadField label="Image" value={form.image_url} onChange={url => setForm({ ...form, image_url: url })} folder="voice-of-preemies/news" />
+            <MultiImageUploadField label="Gallery (optional extra photos)" values={form.gallery_urls} onChange={urls => setForm({ ...form, gallery_urls: urls })} folder="voice-of-preemies/news" />
             <div><Lbl t="Excerpt" /><textarea rows={2} value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} placeholder="Short summary shown in listings…" className={inp + ' resize-none'} style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }} /></div>
             <div><Lbl t="Full Content" /><textarea rows={8} value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} placeholder="Full article text…" className={inp + ' resize-none'} style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }} /></div>
             <div className="flex gap-5 pt-1">

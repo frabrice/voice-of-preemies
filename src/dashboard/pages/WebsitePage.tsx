@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe, Newspaper, BookOpen, HeartHandshake, FileText, Handshake, BarChart3 } from 'lucide-react';
+import { MessageCircle, Newspaper, BookOpen, HeartHandshake, FileText, Handshake, BarChart3 } from 'lucide-react';
 import TabBar from '../components/TabBar';
 import NewsManager from './NewsManager';
 import StoriesManager from './StoriesManager';
@@ -13,7 +13,7 @@ const tabs = [
   { id: 'news', label: 'News', icon: Newspaper },
   { id: 'stories', label: 'Stories', icon: BookOpen },
   { id: 'programs', label: 'Programs', icon: HeartHandshake },
-  { id: 'publications', label: 'Publications', icon: Globe },
+  { id: 'publications', label: 'Feedback', icon: MessageCircle },
   { id: 'resources', label: 'Resources', icon: FileText },
   { id: 'partners', label: 'Partners', icon: Handshake },
   { id: 'stats', label: 'Site Stats', icon: BarChart3 },

@@ -14,6 +14,7 @@ interface EventItem {
   location: string;
   type: string;
   image_url: string;
+  gallery_urls: string[];
   organizer: string;
 }
 
@@ -42,7 +43,7 @@ export default function EventDetail() {
 
     supabase
       .from('events')
-      .select('id, slug, title, description, date, end_date, location, type, image_url, organizer')
+      .select('id, slug, title, description, date, end_date, location, type, image_url, gallery_urls, organizer')
       .eq('slug', slug)
       .eq('published', true)
       .is('deleted_at', null)
@@ -57,7 +58,7 @@ export default function EventDetail() {
 
         supabase
           .from('events')
-          .select('id, slug, title, description, date, end_date, location, type, image_url, organizer')
+          .select('id, slug, title, description, date, end_date, location, type, image_url, gallery_urls, organizer')
           .eq('published', true)
           .is('deleted_at', null)
           .neq('slug', slug)
@@ -133,6 +134,19 @@ export default function EventDetail() {
                   {event.description}
                 </p>
               </div>
+
+              {event.gallery_urls?.length > 0 && (
+                <div className="mb-10">
+                  <h3 className="text-lg font-semibold text-[#1A2B35] mb-4" style={{ fontFamily: 'Cormorant Garamond, serif' }}>Photos from the Event</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {event.gallery_urls.map((url, i) => (
+                      <div key={i} className="aspect-square rounded-xl overflow-hidden">
+                        <img src={url} alt={`${event.title} — photo ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="lg:col-span-1">

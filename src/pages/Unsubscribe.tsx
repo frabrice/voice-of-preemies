@@ -39,7 +39,7 @@ export default function Unsubscribe() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#FBF8F3' }}>
       <div className="max-w-md w-full bg-white rounded-3xl shadow-sm p-10 text-center">
-        <img src="/Voice_Of_Preemies_Logo.png" alt="Voice of Preemies" className="h-10 w-auto mx-auto mb-6" />
+        <Link to="/" className="inline-block mb-6"><img src="/Voice_Of_Preemies_Logo.png" alt="Voice of Preemies" className="h-10 w-auto mx-auto" /></Link>
 
         {status === 'loading' && (
           <>

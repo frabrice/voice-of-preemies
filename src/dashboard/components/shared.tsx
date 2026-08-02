@@ -74,6 +74,8 @@ export function StatusBadge({ status }: { status: string }) {
     completed: 'bg-blue-100 text-blue-700',
     draft: 'bg-slate-100 text-slate-600',
     published: 'bg-emerald-100 text-emerald-700',
+    open: 'bg-emerald-100 text-emerald-700',
+    closed: 'bg-slate-100 text-slate-600',
   };
   return (
     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${colors[status] ?? 'bg-slate-100 text-slate-600'}`} style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>

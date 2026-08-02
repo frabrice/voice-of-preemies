@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { CalendarDays, List, UserCheck, Pencil, Trash2, ChevronLeft, ChevronRight, Star, ExternalLink } from 'lucide-react';
 import TabBar from '../components/TabBar';
 import { useCrud, StatusBadge, EmptyState, SearchInput, fmtDate, inp, ta, Lbl, AddButton, notifyPublication } from '../components/shared';
-import { ImageUploadField } from '../components/UploadField';
+import { ImageUploadField, MultiImageUploadField } from '../components/UploadField';
 
 function toSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -73,7 +73,7 @@ function AllEventsTab() {
   const [showForm, setShowForm] = useState(false);
 
   const filtered = items.filter(e => e.title?.toLowerCase().includes(search.toLowerCase()));
-  const blank = { slug: '', title: '', date: '', end_date: '', location: '', type: 'workshop', description: '', registration_url: '', published: false, capacity: 0, organizer: '', budget_estimate: 0, actual_cost: 0, image_url: '', featured: false };
+  const blank = { slug: '', title: '', date: '', end_date: '', location: '', type: 'workshop', description: '', registration_url: '', published: false, capacity: 0, organizer: '', budget_estimate: 0, actual_cost: 0, image_url: '', gallery_urls: [] as string[], featured: false };
 
   const save = async () => {
     const wasPublished = editing.id ? items.find(i => i.id === editing.id)?.published : false;
@@ -110,6 +110,7 @@ function AllEventsTab() {
             <ImageUploadField label="Image" value={editing.image_url ?? ''} onChange={url => setEditing({ ...editing, image_url: url })} folder="voice-of-preemies/events" />
             <div><Lbl t="Published" /><select value={editing.published ? 'yes' : 'no'} onChange={e => setEditing({ ...editing, published: e.target.value === 'yes' })} className={inp}><option value="no">No</option><option value="yes">Yes</option></select></div>
           </div>
+          <MultiImageUploadField label="Gallery (optional extra photos)" values={editing.gallery_urls ?? []} onChange={urls => setEditing({ ...editing, gallery_urls: urls })} folder="voice-of-preemies/events" />
           <div><Lbl t="Description" /><textarea value={editing.description ?? ''} onChange={e => setEditing({ ...editing, description: e.target.value })} className={ta} /></div>
           <div className="flex gap-2">
             <button onClick={save} className="px-3 py-1.5 rounded-xl bg-[#0A6070] text-white text-[11px] font-semibold">Save</button>

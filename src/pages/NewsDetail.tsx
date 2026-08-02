@@ -13,6 +13,7 @@ interface Article {
   tag: string;
   date: string;
   image_url: string;
+  gallery_urls: string[];
 }
 
 const TAG_COLORS: Record<string, { bg: string; text: string }> = {
@@ -39,7 +40,7 @@ export default function NewsDetail() {
 
     supabase
       .from('news_articles')
-      .select('id, slug, title, excerpt, content, tag, date, image_url')
+      .select('id, slug, title, excerpt, content, tag, date, image_url, gallery_urls')
       .eq('slug', slug)
       .eq('published', true)
       .is('deleted_at', null)
@@ -54,7 +55,7 @@ export default function NewsDetail() {
 
         supabase
           .from('news_articles')
-          .select('id, slug, title, excerpt, content, tag, date, image_url')
+          .select('id, slug, title, excerpt, content, tag, date, image_url, gallery_urls')
           .eq('published', true)
           .is('deleted_at', null)
           .neq('slug', slug)
@@ -127,6 +128,19 @@ export default function NewsDetail() {
                   {article.content}
                 </p>
               </div>
+
+              {article.gallery_urls?.length > 0 && (
+                <div className="mb-10">
+                  <h3 className="text-lg font-semibold text-[#1A2B35] mb-4" style={{ fontFamily: 'Cormorant Garamond, serif' }}>Gallery</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {article.gallery_urls.map((url, i) => (
+                      <div key={i} className="aspect-square rounded-xl overflow-hidden">
+                        <img src={url} alt={`${article.title} — photo ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="lg:col-span-1">

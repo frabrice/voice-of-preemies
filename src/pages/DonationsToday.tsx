@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Smartphone, Building2, Package, CalendarHeart, CheckCircle, ChevronDown, MapPin, Truck, AlertCircle, Phone, Mail, StickyNote } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -396,9 +397,9 @@ export default function DonationsToday() {
     <div className="min-h-screen flex flex-col items-center justify-start px-4 py-12 bg-[#FBF8F3]">
 
       {/* Logo */}
-      <div className="mb-8">
+      <Link to="/" className="mb-8">
         <img src="/Voice_Of_Preemies_Logo.png" alt="Voice of Preemies" className="h-12 w-auto object-contain" />
-      </div>
+      </Link>
 
       {/* Header */}
       <div className="text-center mb-10 max-w-sm">

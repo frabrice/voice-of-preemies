@@ -13,7 +13,7 @@ const tabs = [
 ];
 
 const ALL_ROLES: UserRole[] = ['super_admin', 'admin', 'content_manager', 'finance_manager', 'database_manager', 'support_agent', 'event_coordinator'];
-const ALL_PAGES = ['website', 'database', 'contact', 'donations', 'events', 'documents', 'finance', 'users', 'settings', 'trash', 'subscribers'];
+const ALL_PAGES = ['website', 'database', 'contact', 'donations', 'events', 'documents', 'finance', 'users', 'settings', 'trash', 'subscribers', 'forms'];
 
 function UsersTab() {
   const [users, setUsers] = useState<any[]>([]);
