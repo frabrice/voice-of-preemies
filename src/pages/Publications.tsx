@@ -38,10 +38,10 @@ function fmtRange(start: string, end: string | null) {
   return `${sMon} ${s.getDate()} – ${eMon} ${e.getDate()}`;
 }
 
-/** Forces a real download (not just an inline open) for Cloudinary-hosted images, regardless of the cross-origin host. */
+/** Forces a real download (not just an inline open) as a universally-openable PNG, regardless of the source format or cross-origin host. */
 function downloadUrl(url: string) {
-  if (!url.includes('res.cloudinary.com') || url.includes('/fl_attachment/')) return url;
-  return url.replace('/upload/', '/upload/fl_attachment/');
+  if (!url.includes('res.cloudinary.com') || url.includes('/fl_attachment')) return url;
+  return url.replace('/upload/', '/upload/f_png,fl_attachment/');
 }
 
 const TYPE_META: Record<ItemType, { icon: React.ComponentType<{ className?: string }>; color: string; href: (slug: string) => string }> = {
