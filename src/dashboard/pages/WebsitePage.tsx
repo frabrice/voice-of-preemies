@@ -8,13 +8,13 @@ import ResourcesManager from './ResourcesManager';
 import PartnersManager from './PartnersManager';
 import StatsManager from './StatsManager';
 import PublicationsManager from './PublicationsManager';
-import SpecialDaysManager from './SpecialDaysManager';
+import UpcomingManager from './UpcomingManager';
 
 const tabs = [
   { id: 'news', label: 'News', icon: Newspaper },
   { id: 'stories', label: 'Stories', icon: BookOpen },
   { id: 'programs', label: 'Programs', icon: HeartHandshake },
-  { id: 'special-days', label: 'Special Days', icon: CalendarHeart },
+  { id: 'upcoming', label: 'Upcoming', icon: CalendarHeart },
   { id: 'publications', label: 'Feedback', icon: MessageCircle },
   { id: 'resources', label: 'Resources', icon: FileText },
   { id: 'partners', label: 'Partners', icon: Handshake },
@@ -35,7 +35,7 @@ export default function WebsitePage() {
         {active === 'news' && <NewsManager />}
         {active === 'stories' && <StoriesManager />}
         {active === 'programs' && <ProgramsManager />}
-        {active === 'special-days' && <SpecialDaysManager />}
+        {active === 'upcoming' && <UpcomingManager />}
         {active === 'publications' && <PublicationsManager />}
         {active === 'resources' && <ResourcesManager />}
         {active === 'partners' && <PartnersManager />}

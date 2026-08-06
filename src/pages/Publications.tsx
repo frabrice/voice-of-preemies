@@ -17,12 +17,23 @@ interface FeedItem {
   date: string;
 }
 
-interface SpecialDay {
+interface UpcomingHighlight {
   id: string;
   title: string;
-  date: string;
+  start_date: string;
+  end_date: string | null;
   note: string;
   link_url: string;
+}
+
+function fmtRange(start: string, end: string | null) {
+  const s = new Date(start);
+  const sMon = s.toLocaleDateString('en-US', { month: 'short' });
+  if (!end || end === start) return `${sMon} ${s.getDate()}`;
+  const e = new Date(end);
+  const eMon = e.toLocaleDateString('en-US', { month: 'short' });
+  if (sMon === eMon) return `${sMon} ${s.getDate()}–${e.getDate()}`;
+  return `${sMon} ${s.getDate()} – ${eMon} ${e.getDate()}`;
 }
 
 const TYPE_META: Record<ItemType, { icon: React.ComponentType<{ className?: string }>; color: string; href: (slug: string) => string }> = {
@@ -34,7 +45,7 @@ const TYPE_META: Record<ItemType, { icon: React.ComponentType<{ className?: stri
 export default function Publications() {
   const { t } = useLanguage();
   const [items, setItems] = useState<FeedItem[]>([]);
-  const [specialDays, setSpecialDays] = useState<SpecialDay[]>([]);
+  const [upcoming, setUpcoming] = useState<UpcomingHighlight[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
   const [loading, setLoading] = useState(true);
 
@@ -42,11 +53,11 @@ export default function Publications() {
     const load = async () => {
       setLoading(true);
       const today = new Date().toISOString().split('T')[0];
-      const [s, n, e, sd] = await Promise.all([
+      const [s, n, e, up] = await Promise.all([
         supabase.from('stories').select('id,slug,name,excerpt,image_url,created_at').eq('published', true).is('deleted_at', null),
         supabase.from('news_articles').select('id,slug,title,excerpt,image_url,date').eq('published', true).is('deleted_at', null),
         supabase.from('events').select('id,slug,title,description,image_url,date').eq('published', true).is('deleted_at', null),
-        supabase.from('special_days').select('id,title,date,note,link_url').gte('date', today).order('date', { ascending: true }),
+        supabase.from('upcoming_highlights').select('id,title,start_date,end_date,note,link_url').order('start_date', { ascending: true }),
       ]);
 
       const combined: FeedItem[] = [
@@ -56,8 +67,10 @@ export default function Publications() {
       ];
       combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+      const stillUpcoming = (up.data ?? []).filter(d => (d.end_date ?? d.start_date) >= today);
+
       setItems(combined);
-      setSpecialDays(sd.data ?? []);
+      setUpcoming(stillUpcoming);
       setLoading(false);
     };
     load();
@@ -162,16 +175,15 @@ export default function Publications() {
                   <CalendarHeart className="w-4 h-4 text-[#E8644A]" />
                   <h2 className="text-sm font-bold uppercase tracking-widest text-[#1A2B35]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{t('pub.upcoming.title')}</h2>
                 </div>
-                {specialDays.length === 0 ? (
+                {upcoming.length === 0 ? (
                   <p className="text-[12px] text-[#94A3B8]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{t('pub.upcoming.empty')}</p>
                 ) : (
                   <div className="space-y-4">
-                    {specialDays.map(d => (
-                      <div key={d.id} className="flex gap-3 pb-4 border-b border-[#F0F0F0] last:border-0 last:pb-0">
-                        <div className="flex-shrink-0 w-11 text-center">
-                          <p className="text-lg font-bold leading-none text-[#0A6070]" style={{ fontFamily: 'Cormorant Garamond, serif' }}>{new Date(d.date).getDate()}</p>
-                          <p className="text-[9px] font-bold uppercase text-[#94A3B8] mt-0.5">{new Date(d.date).toLocaleDateString('en-US', { month: 'short' })}</p>
-                        </div>
+                    {upcoming.map(d => (
+                      <div key={d.id} className="pb-4 border-b border-[#F0F0F0] last:border-0 last:pb-0">
+                        <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-1.5" style={{ background: '#0A607015', color: '#0A6070' }}>
+                          {fmtRange(d.start_date, d.end_date)}
+                        </span>
                         <div className="min-w-0">
                           <p className="text-[13px] font-semibold text-[#1e293b] leading-snug" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{d.title}</p>
                           {d.note && <p className="text-[11px] text-[#64748B] mt-0.5 leading-snug">{d.note}</p>}
