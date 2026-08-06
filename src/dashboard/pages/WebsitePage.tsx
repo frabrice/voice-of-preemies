@@ -14,7 +14,7 @@ const tabs = [
   { id: 'news', label: 'News', icon: Newspaper },
   { id: 'stories', label: 'Stories', icon: BookOpen },
   { id: 'programs', label: 'Programs', icon: HeartHandshake },
-  { id: 'upcoming', label: 'Upcoming', icon: CalendarHeart },
+  { id: 'upcoming', label: 'Calendar', icon: CalendarHeart },
   { id: 'publications', label: 'Feedback', icon: MessageCircle },
   { id: 'resources', label: 'Resources', icon: FileText },
   { id: 'partners', label: 'Partners', icon: Handshake },

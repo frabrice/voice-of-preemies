@@ -807,7 +807,7 @@ Kuvugira Ange — kuvuga izina rye mu majwi hamwe n'abantu basobanukiwe — byar
   'pub.title': { en: 'Publications', fr: 'Publications', kw: 'Ibikorwa' },
   'pub.sub': { en: 'News, stories, and events from Voice of Preemies.', fr: 'Actualités, récits et événements de Voice of Preemies.', kw: 'Amakuru, inkuru, n\'ibikorwa biva kuri Voice of Preemies.' },
   'pub.filter.all': { en: 'All', fr: 'Tout', kw: 'Byose' },
-  'pub.upcoming.title': { en: 'Upcoming', fr: 'À Venir', kw: 'Bizaza' },
+  'pub.upcoming.title': { en: 'Mark Your Calendar', fr: 'Notez Ces Dates', kw: 'Andika Izi Tariki' },
   'pub.upcoming.empty': { en: 'No upcoming dates right now.', fr: 'Aucune date à venir pour le moment.', kw: 'Nta tariki iri imbere ubu.' },
   'pub.tab.appreciations': { en: 'Appreciations', fr: 'Appréciations', kw: 'Gushimira' },
   'pub.tab.feedback': { en: 'Feedback', fr: 'Retours', kw: 'Ibitekerezo' },
