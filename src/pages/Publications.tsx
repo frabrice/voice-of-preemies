@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Newspaper, Heart, Calendar, CalendarHeart, ExternalLink } from 'lucide-react';
+import { Newspaper, Heart, Calendar, CalendarHeart, ExternalLink, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 
@@ -24,6 +24,8 @@ interface UpcomingHighlight {
   end_date: string | null;
   note: string;
   link_url: string;
+  flyer_url: string;
+  plan: string;
 }
 
 function fmtRange(start: string, end: string | null) {
@@ -34,6 +36,12 @@ function fmtRange(start: string, end: string | null) {
   const eMon = e.toLocaleDateString('en-US', { month: 'short' });
   if (sMon === eMon) return `${sMon} ${s.getDate()}–${e.getDate()}`;
   return `${sMon} ${s.getDate()} – ${eMon} ${e.getDate()}`;
+}
+
+/** Forces a real download (not just an inline open) for Cloudinary-hosted images, regardless of the cross-origin host. */
+function downloadUrl(url: string) {
+  if (!url.includes('res.cloudinary.com') || url.includes('/fl_attachment/')) return url;
+  return url.replace('/upload/', '/upload/fl_attachment/');
 }
 
 const TYPE_META: Record<ItemType, { icon: React.ComponentType<{ className?: string }>; color: string; href: (slug: string) => string }> = {
@@ -57,7 +65,7 @@ export default function Publications() {
         supabase.from('stories').select('id,slug,name,excerpt,image_url,created_at').eq('published', true).is('deleted_at', null),
         supabase.from('news_articles').select('id,slug,title,excerpt,image_url,date').eq('published', true).is('deleted_at', null),
         supabase.from('events').select('id,slug,title,description,image_url,date').eq('published', true).is('deleted_at', null),
-        supabase.from('upcoming_highlights').select('id,title,start_date,end_date,note,link_url').order('start_date', { ascending: true }),
+        supabase.from('upcoming_highlights').select('id,title,start_date,end_date,note,link_url,flyer_url,plan').order('start_date', { ascending: true }),
       ]);
 
       const combined: FeedItem[] = [
@@ -106,8 +114,8 @@ export default function Publications() {
       <div className="min-h-[60vh] bg-[#FBF8F3] py-12">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-8 items-start">
-            {/* ── Main feed (~80%) ── */}
-            <div className="w-full lg:w-[78%]">
+            {/* ── Main feed ── */}
+            <div className="w-full lg:w-[66%]">
               <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-none">
                 {filters.map(f => (
                   <button
@@ -138,7 +146,7 @@ export default function Publications() {
                   </div>
                 </div>
               ) : (
-                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filtered.map(item => {
                     const meta = TYPE_META[item.type];
                     const Icon = meta.icon;
@@ -168,8 +176,8 @@ export default function Publications() {
               )}
             </div>
 
-            {/* ── Upcoming special days sidebar (~20%) ── */}
-            <aside className="w-full lg:w-[22%] lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+            {/* ── Mark Your Calendar sidebar ── */}
+            <aside className="w-full lg:w-[31%] lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
               <div className="bg-white rounded-2xl shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <CalendarHeart className="w-4 h-4 text-[#E8644A]" />
@@ -178,17 +186,37 @@ export default function Publications() {
                 {upcoming.length === 0 ? (
                   <p className="text-[12px] text-[#94A3B8]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{t('pub.upcoming.empty')}</p>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="divide-y divide-[#F0F0F0]">
                     {upcoming.map(d => (
-                      <div key={d.id} className="pb-4 border-b border-[#F0F0F0] last:border-0 last:pb-0">
-                        <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-1.5" style={{ background: '#0A607015', color: '#0A6070' }}>
-                          {fmtRange(d.start_date, d.end_date)}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-[13px] font-semibold text-[#1e293b] leading-snug" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{d.title}</p>
-                          {d.note && <p className="text-[11px] text-[#64748B] mt-0.5 leading-snug">{d.note}</p>}
+                      <div key={d.id} className="py-4 first:pt-0 last:pb-0">
+                        <div className="flex items-start gap-3">
+                          {d.flyer_url && (
+                            <img src={d.flyer_url} alt={d.title} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-[#F0F0F0]" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-1.5" style={{ background: '#0A607015', color: '#0A6070' }}>
+                              {fmtRange(d.start_date, d.end_date)}
+                            </span>
+                            <p className="text-[13px] font-semibold text-[#1e293b] leading-snug" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{d.title}</p>
+                            {d.note && <p className="text-[11px] text-[#64748B] mt-0.5 leading-snug">{d.note}</p>}
+                          </div>
+                        </div>
+
+                        {d.plan && (
+                          <div className="mt-2.5 bg-[#FBF8F3] rounded-xl px-3 py-2.5 border-l-2 border-[#E8644A]">
+                            <p className="text-[9px] font-bold uppercase tracking-wider text-[#E8644A] mb-0.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>VIP · Voice of Preemies Plan</p>
+                            <p className="text-[11px] text-[#334155] leading-snug">{d.plan}</p>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-3 mt-2.5 flex-wrap">
+                          {d.flyer_url && (
+                            <a href={downloadUrl(d.flyer_url)} download className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0A6070] hover:underline" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                              <Download className="w-3 h-3" /> Download Flyer
+                            </a>
+                          )}
                           {d.link_url && (
-                            <a href={d.link_url} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0A6070] hover:underline mt-1" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            <a href={d.link_url} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0A6070] hover:underline" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                               {t('btn.learnMore')} <ExternalLink className="w-2.5 h-2.5" />
                             </a>
                           )}
