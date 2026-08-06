@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageCircle, Newspaper, BookOpen, HeartHandshake, FileText, Handshake, BarChart3 } from 'lucide-react';
+import { MessageCircle, Newspaper, BookOpen, HeartHandshake, FileText, Handshake, BarChart3, CalendarHeart } from 'lucide-react';
 import TabBar from '../components/TabBar';
 import NewsManager from './NewsManager';
 import StoriesManager from './StoriesManager';
@@ -8,11 +8,13 @@ import ResourcesManager from './ResourcesManager';
 import PartnersManager from './PartnersManager';
 import StatsManager from './StatsManager';
 import PublicationsManager from './PublicationsManager';
+import SpecialDaysManager from './SpecialDaysManager';
 
 const tabs = [
   { id: 'news', label: 'News', icon: Newspaper },
   { id: 'stories', label: 'Stories', icon: BookOpen },
   { id: 'programs', label: 'Programs', icon: HeartHandshake },
+  { id: 'special-days', label: 'Special Days', icon: CalendarHeart },
   { id: 'publications', label: 'Feedback', icon: MessageCircle },
   { id: 'resources', label: 'Resources', icon: FileText },
   { id: 'partners', label: 'Partners', icon: Handshake },
@@ -33,6 +35,7 @@ export default function WebsitePage() {
         {active === 'news' && <NewsManager />}
         {active === 'stories' && <StoriesManager />}
         {active === 'programs' && <ProgramsManager />}
+        {active === 'special-days' && <SpecialDaysManager />}
         {active === 'publications' && <PublicationsManager />}
         {active === 'resources' && <ResourcesManager />}
         {active === 'partners' && <PartnersManager />}

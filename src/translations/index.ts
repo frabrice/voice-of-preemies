@@ -805,7 +805,10 @@ Kuvugira Ange — kuvuga izina rye mu majwi hamwe n'abantu basobanukiwe — byar
   // ─── PUBLICATIONS PAGE ───────────────────────────────────────────────────────
   'pub.label': { en: 'Stay Informed', fr: 'Restez Informé', kw: 'Komeza Kumenya Amakuru' },
   'pub.title': { en: 'Publications', fr: 'Publications', kw: 'Ibikorwa' },
-  'pub.sub': { en: 'News, events, appreciations, and community feedback from Voice of Preemies.', fr: 'Actualités, événements, appréciations et retours communautaires de Voice of Preemies.', kw: 'Amakuru, ibikorwa, gushimira, n\'ibitekerezo by\'umuryango biva kuri Voice of Preemies.' },
+  'pub.sub': { en: 'News, stories, and events from Voice of Preemies.', fr: 'Actualités, récits et événements de Voice of Preemies.', kw: 'Amakuru, inkuru, n\'ibikorwa biva kuri Voice of Preemies.' },
+  'pub.filter.all': { en: 'All', fr: 'Tout', kw: 'Byose' },
+  'pub.upcoming.title': { en: 'Upcoming', fr: 'À Venir', kw: 'Bizaza' },
+  'pub.upcoming.empty': { en: 'No upcoming dates right now.', fr: 'Aucune date à venir pour le moment.', kw: 'Nta tariki iri imbere ubu.' },
   'pub.tab.appreciations': { en: 'Appreciations', fr: 'Appréciations', kw: 'Gushimira' },
   'pub.tab.feedback': { en: 'Feedback', fr: 'Retours', kw: 'Ibitekerezo' },
   'pub.tab.news': { en: 'News', fr: 'Actualités', kw: 'Amakuru' },
