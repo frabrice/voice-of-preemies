@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { makeUnsubscribeToken } from "../_shared/unsubscribe-token.ts";
+import { escapeHtml, requireAuthenticatedUser } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,11 +33,11 @@ function buildEmail(d: PublicationPayload, unsubscribeUrl: string): string {
 <body style="margin:0;padding:0;background:#F1F5F9;font-family:'Helvetica Neue',Arial,sans-serif">
   <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
     <div style="background:linear-gradient(135deg,#0A6070,#1AADA0);padding:28px 32px;text-align:center">
-      <p style="margin:0 0 6px;color:rgba(255,255,255,0.75);font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700">${label}</p>
-      <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700">${d.title}</h1>
+      <p style="margin:0 0 6px;color:rgba(255,255,255,0.75);font-size:12px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700">${escapeHtml(label)}</p>
+      <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700">${escapeHtml(d.title)}</h1>
     </div>
     <div style="padding:28px 32px">
-      ${d.excerpt ? `<p style="margin:0 0 20px;color:#334155;font-size:15px;line-height:1.6">${d.excerpt}</p>` : ""}
+      ${d.excerpt ? `<p style="margin:0 0 20px;color:#334155;font-size:15px;line-height:1.6">${escapeHtml(d.excerpt)}</p>` : ""}
       <a href="${link}" style="display:inline-block;padding:10px 20px;background:#0A6070;color:#fff;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600">Read on our website</a>
     </div>
     <div style="background:#F8FAFC;padding:16px 32px;text-align:center;border-top:1px solid #E2E8F0">
@@ -63,11 +64,24 @@ Deno.serve(async (req: Request) => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!RESEND_API_KEY || !SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!RESEND_API_KEY || !SUPABASE_URL || !SERVICE_ROLE_KEY || !ANON_KEY) {
       return new Response(
         JSON.stringify({ error: "Server not fully configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // This broadcasts to every contact in the database, so it must only ever be
+    // triggered by a real logged-in dashboard admin — never by an anonymous caller
+    // (the public anon key alone is not enough; anyone can read that out of the
+    // client bundle).
+    const caller = await requireAuthenticatedUser(req, SUPABASE_URL, ANON_KEY);
+    if (!caller) {
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data: PublicationPayload = await req.json();

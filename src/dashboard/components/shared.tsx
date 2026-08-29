@@ -132,9 +132,15 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
 /* ── Publication notifications ── */
 export async function notifyPublication(payload: { type: 'news' | 'story' | 'event'; title: string; excerpt?: string | null; path?: string }) {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return; // must be a real logged-in admin; the function rejects anon-key-only calls
     await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-publication-notification`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${session.access_token}`,
+      },
       body: JSON.stringify(payload),
     });
   } catch { /* email is best-effort; don't block the admin */ }

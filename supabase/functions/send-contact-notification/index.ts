@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { escapeHtml, pgEqOrNull } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,7 +31,7 @@ function buildAdminEmail(d: ContactMessage): string {
   const tableRows = rows
     .map(
       ([label, value]) =>
-        `<tr><td style="padding:10px 14px;font-weight:600;color:#0A6070;border-bottom:1px solid #E2E8F0;white-space:nowrap;vertical-align:top">${label}</td><td style="padding:10px 14px;color:#334155;border-bottom:1px solid #E2E8F0;word-break:break-word">${value}</td></tr>`
+        `<tr><td style="padding:10px 14px;font-weight:600;color:#0A6070;border-bottom:1px solid #E2E8F0;white-space:nowrap;vertical-align:top">${escapeHtml(label)}</td><td style="padding:10px 14px;color:#334155;border-bottom:1px solid #E2E8F0;word-break:break-word">${escapeHtml(value)}</td></tr>`
     )
     .join("");
 
@@ -68,13 +69,13 @@ function buildConfirmationEmail(d: ContactMessage): string {
       <div style="width:56px;height:56px;margin:0 auto 12px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center">
         <span style="font-size:28px;color:#fff">&#10003;</span>
       </div>
-      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700">Message Received, ${firstName}!</h1>
+      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700">Message Received, ${escapeHtml(firstName)}!</h1>
       <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:15px">Thank you for reaching out to us</p>
     </div>
     <div style="padding:28px 32px">
-      <p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.6">We've received your message regarding <strong>${d.subject}</strong> and our team will get back to you within 1–2 business days.</p>
+      <p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.6">We've received your message regarding <strong>${escapeHtml(d.subject)}</strong> and our team will get back to you within 1–2 business days.</p>
       <div style="background:#F0FDFA;border:1px solid #99F6E4;border-radius:8px;padding:16px 20px;margin:0 0 20px">
-        <p style="margin:0;color:#0F766E;font-size:14px;line-height:1.5"><strong>Your message:</strong><br>${d.message}</p>
+        <p style="margin:0;color:#0F766E;font-size:14px;line-height:1.5"><strong>Your message:</strong><br>${escapeHtml(d.message)}</p>
       </div>
       <p style="margin:0;color:#64748B;font-size:14px;line-height:1.5">In the meantime, feel free to call us or reach out at <a href="mailto:voiceofpreemies@gmail.com" style="color:#0A6070;text-decoration:underline">voiceofpreemies@gmail.com</a>.</p>
     </div>
@@ -93,14 +94,37 @@ Deno.serve(async (req: Request) => {
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!RESEND_API_KEY || !SUPABASE_URL || !SERVICE_ROLE_KEY) {
       return new Response(
-        JSON.stringify({ error: "RESEND_API_KEY not configured" }),
+        JSON.stringify({ error: "Server not fully configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const data: ContactMessage = await req.json();
+
+    // Refuse to send unless this exactly matches a message actually just
+    // submitted through the public contact form — prevents this endpoint being
+    // used as an open relay to send arbitrary spoofed email.
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const checkUrl = `${SUPABASE_URL}/rest/v1/contact_submissions?select=id`
+      + pgEqOrNull("email", data.email)
+      + pgEqOrNull("subject", data.subject)
+      + pgEqOrNull("message", data.message)
+      + `&created_at=gte.${encodeURIComponent(since)}`
+      + `&deleted_at=is.null&limit=1`;
+    const checkRes = await fetch(checkUrl, {
+      headers: { apikey: SERVICE_ROLE_KEY, Authorization: `Bearer ${SERVICE_ROLE_KEY}` },
+    });
+    const matches = checkRes.ok ? await checkRes.json() : [];
+    if (!Array.isArray(matches) || matches.length === 0) {
+      return new Response(JSON.stringify({ error: "No matching submission found" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const sendEmail = (payload: Record<string, unknown>) =>
       fetch("https://api.resend.com/emails", {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAdminAuth, Permission } from '../../contexts/AdminAuthContext';
 import { useSiteSettings } from '../../contexts/SiteSettingsContext';
-import { Settings as SettingsIcon, Building2, Globe, ShieldCheck, Share2, Check, AlertCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Globe, ShieldCheck, Share2, Check, AlertCircle, KeyRound } from 'lucide-react';
 import { PageHeader, Lbl, inp } from '../components/shared';
 
 export default function SettingsPage() {
@@ -12,7 +12,34 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwMsg, setPwMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   useEffect(() => { setForm(settings); }, [settings]);
+
+  const changePassword = async () => {
+    setPwMsg(null);
+    if (newPassword.length < 8) {
+      setPwMsg({ type: 'error', text: 'Password must be at least 8 characters.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwMsg({ type: 'error', text: "Passwords don't match." });
+      return;
+    }
+    setPwSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPwSaving(false);
+    if (error) {
+      setPwMsg({ type: 'error', text: error.message });
+      return;
+    }
+    setNewPassword('');
+    setConfirmPassword('');
+    setPwMsg({ type: 'success', text: 'Password updated.' });
+  };
 
   const allPerms: Permission[] = ['website', 'database', 'contact', 'donations', 'events', 'documents', 'finance', 'users', 'settings', 'trash', 'subscribers'];
 
@@ -107,6 +134,29 @@ export default function SettingsPage() {
             <div className="bg-slate-50 rounded-xl px-3 py-2.5">
               <p className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-widest">Role</p>
               <p className="text-[13px] text-[#1e293b] font-medium capitalize">{adminRole.replace('_', ' ')}</p>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 space-y-3">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <p className="text-[11px] font-bold text-[#334155]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Change Password</p>
+              </div>
+              {pwMsg && (
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-semibold ${pwMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`} style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                  {pwMsg.type === 'success' ? <Check className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                  {pwMsg.text}
+                </div>
+              )}
+              <div><Lbl t="New Password" /><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="At least 8 characters" className={inp} autoComplete="new-password" /></div>
+              <div><Lbl t="Confirm New Password" /><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inp} autoComplete="new-password" /></div>
+              <button
+                onClick={changePassword}
+                disabled={pwSaving || !newPassword || !confirmPassword}
+                className="w-full px-4 py-2 rounded-xl bg-slate-900 text-white text-[11px] font-bold disabled:opacity-50 hover:bg-slate-800 transition-colors"
+                style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+              >
+                {pwSaving ? 'Updating…' : 'Update Password'}
+              </button>
             </div>
           </div>
         </div>

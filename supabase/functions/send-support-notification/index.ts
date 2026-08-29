@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { escapeHtml, pgEqOrNull } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,7 +33,7 @@ function buildAdminEmail(d: SupportRequest): string {
   const tableRows = rows
     .map(
       ([label, value]) =>
-        `<tr><td style="padding:10px 14px;font-weight:600;color:#0A6070;border-bottom:1px solid #E2E8F0;white-space:nowrap;vertical-align:top">${label}</td><td style="padding:10px 14px;color:#334155;border-bottom:1px solid #E2E8F0;word-break:break-word">${value}</td></tr>`
+        `<tr><td style="padding:10px 14px;font-weight:600;color:#0A6070;border-bottom:1px solid #E2E8F0;white-space:nowrap;vertical-align:top">${escapeHtml(label)}</td><td style="padding:10px 14px;color:#334155;border-bottom:1px solid #E2E8F0;word-break:break-word">${escapeHtml(value)}</td></tr>`
     )
     .join("");
 
@@ -70,11 +71,11 @@ function buildConfirmationEmail(d: SupportRequest): string {
       <div style="width:56px;height:56px;margin:0 auto 12px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center">
         <span style="font-size:28px;color:#fff">&#10084;</span>
       </div>
-      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700">We're Here for You, ${firstName}</h1>
+      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700">We're Here for You, ${escapeHtml(firstName)}</h1>
       <p style="margin:8px 0 0;color:rgba(255,255,255,0.9);font-size:15px">Your support request has been received</p>
     </div>
     <div style="padding:28px 32px">
-      <p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.6">We have received your request${d.support_type ? ` for <strong>${d.support_type}</strong>` : ""} and our team will reach out to you within 24 hours.</p>
+      <p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.6">We have received your request${d.support_type ? ` for <strong>${escapeHtml(d.support_type)}</strong>` : ""} and our team will reach out to you within 24 hours.</p>
       <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:16px 20px;margin:0 0 20px">
         <p style="margin:0;color:#92400E;font-size:14px;line-height:1.5"><strong>What happens next?</strong><br>One of our support team members will contact you by phone${d.email ? " or email" : ""} to discuss how we can best help you and your family.</p>
       </div>
@@ -95,14 +96,35 @@ Deno.serve(async (req: Request) => {
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!RESEND_API_KEY || !SUPABASE_URL || !SERVICE_ROLE_KEY) {
       return new Response(
-        JSON.stringify({ error: "RESEND_API_KEY not configured" }),
+        JSON.stringify({ error: "Server not fully configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const data: SupportRequest = await req.json();
+
+    // Refuse to send unless this matches a support request actually just
+    // submitted through the public form — prevents this endpoint being used as
+    // an open relay to send arbitrary spoofed email.
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const checkUrl = `${SUPABASE_URL}/rest/v1/support_requests?select=id`
+      + pgEqOrNull("name", data.name)
+      + pgEqOrNull("phone", data.phone)
+      + `&created_at=gte.${encodeURIComponent(since)}&deleted_at=is.null&limit=1`;
+    const checkRes = await fetch(checkUrl, {
+      headers: { apikey: SERVICE_ROLE_KEY, Authorization: `Bearer ${SERVICE_ROLE_KEY}` },
+    });
+    const matches = checkRes.ok ? await checkRes.json() : [];
+    if (!Array.isArray(matches) || matches.length === 0) {
+      return new Response(JSON.stringify({ error: "No matching support request found" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const sendEmail = (payload: Record<string, unknown>) =>
       fetch("https://api.resend.com/emails", {

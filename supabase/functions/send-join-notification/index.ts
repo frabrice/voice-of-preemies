@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { escapeHtml, pgEqOrNull } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,7 +37,7 @@ function buildAdminEmail(data: JoinRequest): string {
   const tableRows = rows
     .map(
       ([label, value]) =>
-        `<tr><td style="padding:10px 14px;font-weight:600;color:#0A6070;border-bottom:1px solid #E2E8F0;white-space:nowrap;vertical-align:top">${label}</td><td style="padding:10px 14px;color:#334155;border-bottom:1px solid #E2E8F0">${value}</td></tr>`
+        `<tr><td style="padding:10px 14px;font-weight:600;color:#0A6070;border-bottom:1px solid #E2E8F0;white-space:nowrap;vertical-align:top">${escapeHtml(label)}</td><td style="padding:10px 14px;color:#334155;border-bottom:1px solid #E2E8F0">${escapeHtml(value)}</td></tr>`
     )
     .join("");
 
@@ -74,11 +75,11 @@ function buildConfirmationEmail(data: JoinRequest): string {
       <div style="width:56px;height:56px;margin:0 auto 12px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center">
         <span style="font-size:28px;color:#fff">&#10003;</span>
       </div>
-      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700">Welcome, ${firstName}!</h1>
+      <h1 style="margin:0;color:#fff;font-size:24px;font-weight:700">Welcome, ${escapeHtml(firstName)}!</h1>
       <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:15px">Thank you for joining Voice of Preemies</p>
     </div>
     <div style="padding:28px 32px">
-      <p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.6">We are thrilled that you want to be part of our community as <strong>${data.role}</strong>. Your willingness to contribute means the world to the families we serve.</p>
+      <p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.6">We are thrilled that you want to be part of our community as <strong>${escapeHtml(data.role)}</strong>. Your willingness to contribute means the world to the families we serve.</p>
       <div style="background:#F0FDFA;border:1px solid #99F6E4;border-radius:8px;padding:16px 20px;margin:0 0 20px">
         <p style="margin:0;color:#0F766E;font-size:14px;line-height:1.5"><strong>What happens next?</strong><br>Our team will review your request and reach out to you within a few days. We look forward to welcoming you aboard!</p>
       </div>
@@ -99,14 +100,48 @@ Deno.serve(async (req: Request) => {
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!RESEND_API_KEY || !SUPABASE_URL || !SERVICE_ROLE_KEY) {
       return new Response(
-        JSON.stringify({ error: "RESEND_API_KEY not configured" }),
+        JSON.stringify({ error: "Server not fully configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const data: JoinRequest = await req.json();
+
+    // This function is shared by two public forms (community join requests and
+    // team/job applications), so check either source table for a matching row
+    // submitted in the last 15 minutes before sending — prevents this endpoint
+    // being used as an open relay to send arbitrary spoofed email.
+    const svcHeaders = { apikey: SERVICE_ROLE_KEY, Authorization: `Bearer ${SERVICE_ROLE_KEY}` };
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const [joinRes, teamRes] = await Promise.all([
+      fetch(
+        `${SUPABASE_URL}/rest/v1/join_requests?select=id`
+          + pgEqOrNull("full_name", data.full_name)
+          + pgEqOrNull("phone", data.phone)
+          + `&created_at=gte.${encodeURIComponent(since)}&deleted_at=is.null&limit=1`,
+        { headers: svcHeaders }
+      ),
+      fetch(
+        `${SUPABASE_URL}/rest/v1/team_applications?select=id`
+          + pgEqOrNull("full_name", data.full_name)
+          + pgEqOrNull("phone", data.phone)
+          + `&created_at=gte.${encodeURIComponent(since)}&limit=1`,
+        { headers: svcHeaders }
+      ),
+    ]);
+    const joinMatches = joinRes.ok ? await joinRes.json() : [];
+    const teamMatches = teamRes.ok ? await teamRes.json() : [];
+    const hasMatch = (Array.isArray(joinMatches) && joinMatches.length > 0) || (Array.isArray(teamMatches) && teamMatches.length > 0);
+    if (!hasMatch) {
+      return new Response(JSON.stringify({ error: "No matching submission found" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const sendEmail = (payload: Record<string, unknown>) =>
       fetch("https://api.resend.com/emails", {
