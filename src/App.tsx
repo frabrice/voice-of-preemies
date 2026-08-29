@@ -26,6 +26,8 @@ import DonationsToday from './pages/DonationsToday';
 import Unsubscribe from './pages/Unsubscribe';
 import FormsIndex from './pages/FormsIndex';
 import FormFill from './pages/FormFill';
+import CareersIndex from './pages/CareersIndex';
+import CareerDetail from './pages/CareerDetail';
 
 import LoginPage from './dashboard/LoginPage';
 import DashboardLayout from './dashboard/DashboardLayout';
@@ -134,6 +136,8 @@ function AppRoutes() {
           <Route path="/resources" element={<Resources />} />
           <Route path="/healthcare" element={<Healthcare />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/careers" element={<CareersIndex />} />
+          <Route path="/careers/:slug" element={<CareerDetail />} />
         </Routes>
       </main>
       <Footer />

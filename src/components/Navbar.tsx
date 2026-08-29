@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, Globe, Heart, Users, ArrowRight, HeartHandshake, Search } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import { Language } from '../translations';
 import JoinModal from './JoinModal';
 
@@ -91,6 +92,7 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { language, setLanguage, t } = useLanguage();
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -157,6 +159,9 @@ export default function Navbar() {
   };
 
   const navItems = getNavItems((k: string) => t(k as any));
+  if (settings.careers_page_enabled) {
+    navItems.splice(navItems.length - 1, 0, { label: t('nav.careers'), path: '/careers' });
+  }
   const currentLang = langOptions.find(l => l.code === language)!;
 
   return (

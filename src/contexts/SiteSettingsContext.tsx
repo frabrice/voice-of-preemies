@@ -12,6 +12,7 @@ export interface SiteSettings {
   twitter_url: string;
   youtube_url: string;
   default_currency: string;
+  careers_page_enabled: boolean;
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -25,6 +26,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   twitter_url: '',
   youtube_url: '',
   default_currency: 'USD',
+  careers_page_enabled: true,
 };
 
 interface SiteSettingsContextType {

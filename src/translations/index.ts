@@ -29,6 +29,7 @@ export const translations = {
   'nav.involved.fundraise': { en: 'Fundraise', fr: 'Collecter des Fonds', kw: 'Gukusanya Inkunga' },
   'nav.involved.partner': { en: 'Become a Partner', fr: 'Devenir Partenaire', kw: 'Fata Inkunga Natwe' },
   'nav.news': { en: 'Publications', fr: 'Publications', kw: 'Ibikorwa' },
+  'nav.careers': { en: 'Careers', fr: 'Carrières', kw: 'Akazi' },
   'nav.contact': { en: 'Contact', fr: 'Contact', kw: 'Twandikire' },
   'nav.donate': { en: 'Donate', fr: 'Faire un Don', kw: 'Tanga Impano' },
   'nav.healthcare': { en: 'For Healthcare Pros', fr: 'Professionnels de Santé', kw: 'Inzobere mu Ubuvuzi' },
