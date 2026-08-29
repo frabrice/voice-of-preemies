@@ -29,6 +29,54 @@ function daysLeft(deadline: string) {
   return Math.round((Date.parse(`${deadline}T00:00:00Z`) - Date.parse(`${todayISO()}T00:00:00Z`)) / msPerDay);
 }
 
+/** Renders a plain-text posting body with real structure: a blank-line-separated
+ *  block whose first line is followed by "- " bullet lines becomes a bold
+ *  heading + list; a "Label: rest of line" line gets its label bolded inline.
+ *  Keeps the dashboard's plain-textarea editing simple while still giving the
+ *  public page proper visual hierarchy. */
+function DescriptionBody({ text }: { text: string }) {
+  const blocks = text.trim().split(/\n\s*\n+/);
+  return (
+    <div className="space-y-6">
+      {blocks.map((block, i) => {
+        const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+        const bulletLines = lines.filter(l => l.startsWith('- '));
+        const isSection = bulletLines.length > 0 && !lines[0].startsWith('- ');
+
+        if (isSection) {
+          return (
+            <div key={i}>
+              <h3 className="text-lg font-bold text-[#0A6070] mb-3" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{lines[0]}</h3>
+              <ul className="space-y-2.5">
+                {bulletLines.map((l, j) => (
+                  <li key={j} className="flex items-start gap-2.5 text-[#1A2B35] text-[15px] leading-relaxed" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#0A6070] flex-shrink-0 mt-2" />
+                    <span>{l.replace(/^- /, '')}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        }
+
+        return (
+          <p key={i} className="text-[#1A2B35] text-[15px] leading-[1.8]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            {lines.map((l, j) => {
+              const m = l.match(/^([A-Za-z][A-Za-z /]{2,24}):\s*(.*)$/);
+              return (
+                <span key={j}>
+                  {j > 0 && <br />}
+                  {m ? <><strong className="text-[#0A6070] font-bold">{m[1]}:</strong> {m[2]}</> : l}
+                </span>
+              );
+            })}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function CareerDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -77,7 +125,7 @@ export default function CareerDetail() {
 
   return (
     <div className="page-enter">
-      <section className="relative py-20 hero-gradient overflow-hidden">
+      <section className="relative pt-28 pb-16 hero-gradient overflow-hidden">
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             to="/careers"
@@ -104,7 +152,7 @@ export default function CareerDetail() {
               ) : (
                 <div className="bg-white rounded-2xl p-8 shadow-sm">
                   {job.summary && <p className="text-lg text-[#1A2B35] leading-relaxed mb-6 italic" style={{ fontFamily: 'Cormorant Garamond, serif' }}>{job.summary}</p>}
-                  <p className="text-[#1A2B35] text-base leading-[1.8] whitespace-pre-line" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{job.description}</p>
+                  <DescriptionBody text={job.description} />
                 </div>
               )}
             </div>
