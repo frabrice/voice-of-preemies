@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 
 type RegType = 'individual' | 'couple';
 
-const PRICE: Record<RegType, number> = { individual: 20000, couple: 40000 };
+const PRICE: Record<RegType, number> = { individual: 25000, couple: 40000 };
 
 const font = { fontFamily: 'Plus Jakarta Sans, sans-serif' };
 const serif = { fontFamily: 'Cormorant Garamond, serif' };
@@ -180,7 +180,7 @@ export default function TrainingRegister() {
                     >
                       <User className={`w-5 h-5 ${type === 'individual' ? 'text-[#0A6070]' : 'text-[#A0B4BC]'}`} />
                       <span className="text-sm font-semibold text-[#1A2B35]" style={font}>Individual</span>
-                      <span className="text-xs text-[#5A7280]" style={font}>20,000 RWF</span>
+                      <span className="text-xs text-[#5A7280]" style={font}>25,000 RWF</span>
                     </button>
                     <button
                       type="button"
