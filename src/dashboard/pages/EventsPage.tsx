@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { CalendarDays, List, UserCheck, Pencil, Trash2, ChevronLeft, ChevronRight, Star, ExternalLink } from 'lucide-react';
+import { CalendarDays, List, UserCheck, Pencil, Trash2, ChevronLeft, ChevronRight, Star, ExternalLink, CreditCard, CheckCircle2 } from 'lucide-react';
 import TabBar from '../components/TabBar';
-import { useCrud, StatusBadge, EmptyState, SearchInput, fmtDate, inp, ta, Lbl, AddButton, notifyPublication } from '../components/shared';
+import { useCrud, StatusBadge, EmptyState, SearchInput, fmtDate, fmtDateTime, inp, ta, Lbl, AddButton, notifyPublication, notifyRegistrationConfirmed } from '../components/shared';
 import { ImageUploadField, MultiImageUploadField } from '../components/UploadField';
 
 function toSlug(title: string) {
@@ -13,6 +13,7 @@ const tabs = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'all', label: 'All Events', icon: List },
   { id: 'registrations', label: 'Registrations', icon: UserCheck },
+  { id: 'training', label: 'Training Registrations', icon: CreditCard },
 ];
 
 function CalendarTab() {
@@ -147,6 +148,118 @@ function AllEventsTab() {
   );
 }
 
+function TrainingRegistrationsTab() {
+  const { items, loading, update } = useCrud<any>('training_registrations');
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed'>('all');
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const markPaid = async (r: any) => {
+    setConfirmingId(r.id);
+    const ok = await update(r.id, { payment_status: 'confirmed', confirmed_at: new Date().toISOString() });
+    if (ok) {
+      await notifyRegistrationConfirmed({
+        email: r.email,
+        primaryName: r.primary_name,
+        partnerName: r.partner_name,
+        registrationType: r.registration_type,
+        amount: r.amount,
+      });
+    }
+    setConfirmingId(null);
+  };
+
+  const filtered = items
+    .filter(r => filter === 'all' || r.payment_status === filter)
+    .filter(r =>
+      r.primary_name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.partner_name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.email?.toLowerCase().includes(search.toLowerCase()) ||
+      r.payer_name?.toLowerCase().includes(search.toLowerCase())
+    );
+
+  const pendingCount = items.filter(r => r.payment_status === 'pending').length;
+  const totalConfirmed = items.filter(r => r.payment_status === 'confirmed').reduce((sum, r) => sum + (r.amount ?? 0), 0);
+
+  return (
+    <div className="space-y-3">
+      <div className="grid sm:grid-cols-3 gap-3">
+        <div className="bg-white rounded-xl border border-slate-100 p-3">
+          <p className="text-[10px] font-bold text-[#94A3B8] uppercase" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Total Registrations</p>
+          <p className="text-xl font-bold text-[#1e293b]" style={{ fontFamily: 'Cormorant Garamond, serif' }}>{items.length}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-100 p-3">
+          <p className="text-[10px] font-bold text-[#94A3B8] uppercase" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Awaiting Payment Check</p>
+          <p className="text-xl font-bold text-amber-600" style={{ fontFamily: 'Cormorant Garamond, serif' }}>{pendingCount}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-100 p-3">
+          <p className="text-[10px] font-bold text-[#94A3B8] uppercase" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Confirmed Revenue</p>
+          <p className="text-xl font-bold text-emerald-600" style={{ fontFamily: 'Cormorant Garamond, serif' }}>{totalConfirmed.toLocaleString()} RWF</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <SearchInput value={search} onChange={setSearch} placeholder="Search name, email, payer..." />
+        <div className="flex gap-1">
+          {(['all', 'pending', 'confirmed'] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-xl text-[11px] font-bold capitalize transition-colors ${filter === f ? 'bg-[#0A6070] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <p className="text-[12px] text-[#94A3B8] text-center py-8">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <EmptyState icon={CreditCard} message="No registrations yet." />
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(r => (
+            <div key={r.id} className="bg-white rounded-xl border border-slate-100 p-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-[13px] font-bold text-[#1e293b]" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                    {r.primary_name}{r.registration_type === 'couple' && r.partner_name ? ` & ${r.partner_name}` : ''}
+                  </p>
+                  <StatusBadge status={r.payment_status} />
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold capitalize">{r.registration_type}</span>
+                </div>
+                <p className="text-[10px] text-[#94A3B8] mt-0.5">
+                  {r.email} · {r.phone} · {fmtDateTime(r.created_at)}
+                </p>
+                <p className="text-[10px] text-[#64748B] mt-0.5">
+                  Paid by <span className="font-semibold">{r.payer_name}</span> · <span className="font-semibold">{r.amount?.toLocaleString()} RWF</span>
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                {r.payment_status === 'confirmed' ? (
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Confirmed
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => markPaid(r)}
+                    disabled={confirmingId === r.id}
+                    className="px-3 py-1.5 rounded-xl bg-[#0A6070] text-white text-[11px] font-semibold disabled:opacity-60"
+                  >
+                    {confirmingId === r.id ? 'Confirming...' : 'Mark as Paid'}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RegistrationsTab() {
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
@@ -211,6 +324,7 @@ export default function EventsPage() {
         {active === 'calendar' && <CalendarTab />}
         {active === 'all' && <AllEventsTab />}
         {active === 'registrations' && <RegistrationsTab />}
+        {active === 'training' && <TrainingRegistrationsTab />}
       </div>
     </div>
   );

@@ -146,6 +146,29 @@ export async function notifyPublication(payload: { type: 'news' | 'story' | 'eve
   } catch { /* email is best-effort; don't block the admin */ }
 }
 
+/* ── Registration payment confirmation ── */
+export async function notifyRegistrationConfirmed(payload: {
+  email: string;
+  primaryName: string;
+  partnerName?: string | null;
+  registrationType: 'individual' | 'couple';
+  amount: number;
+}) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return; // must be a real logged-in admin; the function rejects anon-key-only calls
+    await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-registration-confirmation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch { /* email is best-effort; don't block the admin */ }
+}
+
 export function AddButton({ onClick, label = 'Add New' }: { onClick: () => void; label?: string }) {
   return (
     <button

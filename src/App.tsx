@@ -27,6 +27,7 @@ import Unsubscribe from './pages/Unsubscribe';
 import FormsIndex from './pages/FormsIndex';
 import FormFill from './pages/FormFill';
 import CareersIndex from './pages/CareersIndex';
+import TrainingRegister from './pages/TrainingRegister';
 import CareerDetail from './pages/CareerDetail';
 
 import LoginPage from './dashboard/LoginPage';
@@ -138,6 +139,7 @@ function AppRoutes() {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/careers" element={<CareersIndex />} />
           <Route path="/careers/:slug" element={<CareerDetail />} />
+          <Route path="/register" element={<TrainingRegister />} />
         </Routes>
       </main>
       <Footer />
