@@ -82,10 +82,9 @@ export default function TrainingRegister() {
     <div className="page-enter">
       <section className="relative pt-28 pb-0 hero-gradient overflow-hidden">
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#F0A500] mb-2" style={font}>Journée Porte Ouverte</p>
-          <h1 className="text-3xl md:text-5xl font-light text-white leading-tight" style={serif}>Mental Health Open Day</h1>
-          <p className="text-sm text-white/70 max-w-lg mx-auto mt-3" style={font}>
-            The first of an ongoing series of trainings for parents on understanding and supporting mental health.
+          <h1 className="text-3xl md:text-5xl font-light text-white leading-tight" style={serif}>Mental Health</h1>
+          <p className="text-sm font-semibold text-white/80 max-w-lg mx-auto mt-3 uppercase tracking-wide" style={font}>
+            Educational and Informative Session
           </p>
         </div>
         <div className="absolute bottom-0 left-0 right-0">
@@ -166,7 +165,7 @@ export default function TrainingRegister() {
             <div className="lg:col-span-3">
               <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#E8F0F2] shadow-sm p-6 sm:p-8 space-y-6">
                 <div>
-                  <h2 className="text-xl font-light text-[#1A2B35] mb-1" style={serif}>Register for the Open Day</h2>
+                  <h2 className="text-xl font-light text-[#1A2B35] mb-1" style={serif}>Register for the Session</h2>
                   <p className="text-xs text-[#5A7280]" style={font}>Fields marked are required to reserve your spot.</p>
                 </div>
 
