@@ -58,6 +58,7 @@ const getNavItems = (t: (k: string) => string): NavItemDef[] => [
       { label: t('nav.support.peer'), path: '/support', hash: 'peer', desc: t('nav.support.peer.desc') },
       { label: t('nav.support.bereavement'), path: '/support', hash: 'bereavement', desc: t('nav.support.bereavement.desc') },
       { label: t('nav.support.request'), path: '/support', hash: 'request', desc: t('nav.support.request.desc') },
+      { label: t('nav.support.book'), path: '/book', hash: 'top', desc: t('nav.support.book.desc') },
     ],
   },
   { label: t('nav.programs'), path: '/programs' },

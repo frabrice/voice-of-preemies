@@ -28,6 +28,7 @@ import FormsIndex from './pages/FormsIndex';
 import FormFill from './pages/FormFill';
 import CareersIndex from './pages/CareersIndex';
 import TrainingRegister from './pages/TrainingRegister';
+import BookConsultation from './pages/BookConsultation';
 import CareerDetail from './pages/CareerDetail';
 
 import LoginPage from './dashboard/LoginPage';
@@ -45,6 +46,7 @@ import SettingsPage from './dashboard/pages/SettingsPage';
 import TrashManager from './dashboard/pages/TrashManager';
 import SubscribersPage from './dashboard/pages/SubscribersPage';
 import FormsManager from './dashboard/pages/FormsManager';
+import ConsultationsPage from './dashboard/pages/ConsultationsPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -90,6 +92,7 @@ function AppRoutes() {
         <Route path="/dashboard/trash" element={<DashboardPage component={TrashManager} />} />
         <Route path="/dashboard/subscribers" element={<DashboardPage component={SubscribersPage} />} />
         <Route path="/dashboard/forms" element={<DashboardPage component={FormsManager} />} />
+        <Route path="/dashboard/consultations" element={<DashboardPage component={ConsultationsPage} />} />
         <Route path="/dashboard/programs" element={<Navigate to="/dashboard/website" replace />} />
         <Route path="/dashboard/stories" element={<Navigate to="/dashboard/website" replace />} />
         <Route path="/dashboard/team" element={<Navigate to="/dashboard/database" replace />} />
@@ -140,6 +143,7 @@ function AppRoutes() {
           <Route path="/careers" element={<CareersIndex />} />
           <Route path="/careers/:slug" element={<CareerDetail />} />
           <Route path="/register" element={<TrainingRegister />} />
+          <Route path="/book" element={<BookConsultation />} />
         </Routes>
       </main>
       <Footer />

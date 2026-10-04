@@ -4,7 +4,7 @@ import { useAdminAuth, UserRole, ROLE_LABELS } from '../contexts/AdminAuthContex
 import {
   LayoutDashboard, Globe, Database, Mail, Heart,
   CalendarDays, FolderOpen, Wallet, Users, Settings as SettingsIcon,
-  LogOut, ExternalLink, Menu, X, ChevronLeft, ChevronRight, Trash2, ShieldCheck, Send, ClipboardList,
+  LogOut, ExternalLink, Menu, X, ChevronLeft, ChevronRight, Trash2, ShieldCheck, Send, ClipboardList, Stethoscope,
 } from 'lucide-react';
 
 interface NavItem {
@@ -12,7 +12,7 @@ interface NavItem {
   path: string;
   icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   color: string;
-  permission: 'website' | 'database' | 'contact' | 'donations' | 'events' | 'documents' | 'finance' | 'users' | 'settings' | 'trash' | 'subscribers' | 'forms';
+  permission: 'website' | 'database' | 'contact' | 'donations' | 'events' | 'documents' | 'finance' | 'users' | 'settings' | 'trash' | 'subscribers' | 'forms' | 'consultations';
 }
 
 const navItems: NavItem[] = [
@@ -23,6 +23,7 @@ const navItems: NavItem[] = [
   { label: 'Donations', path: '/dashboard/donations',   icon: Heart,           color: 'from-red-500 to-rose-400',      permission: 'donations' },
   { label: 'Events',    path: '/dashboard/events',      icon: CalendarDays,    color: 'from-indigo-500 to-blue-400',    permission: 'events' },
   { label: 'Forms',     path: '/dashboard/forms',       icon: ClipboardList,   color: 'from-fuchsia-500 to-pink-400',  permission: 'forms' },
+  { label: 'Consultations', path: '/dashboard/consultations', icon: Stethoscope, color: 'from-sky-500 to-teal-400',     permission: 'consultations' },
   { label: 'Documents',path: '/dashboard/documents',   icon: FolderOpen,      color: 'from-orange-500 to-amber-400',   permission: 'documents' },
   { label: 'Finance',   path: '/dashboard/finance',     icon: Wallet,          color: 'from-emerald-500 to-green-400', permission: 'finance' },
   { label: 'Subscribers', path: '/dashboard/subscribers', icon: Send,          color: 'from-cyan-500 to-sky-400',       permission: 'subscribers' },
