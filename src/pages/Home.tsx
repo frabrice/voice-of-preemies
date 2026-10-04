@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Heart, Users, Building2, BookOpen, ArrowRight,
   Globe, Shield, HandHeart, Sparkles,
-  ChevronLeft, ChevronRight, Newspaper, Calendar
+  ChevronLeft, ChevronRight, Newspaper, Calendar, Stethoscope
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import SupportModal, { type SupportRole } from '../components/SupportModal';
@@ -339,6 +339,42 @@ export default function Home() {
           </div>
         </div>
 
+      </section>
+
+      {/* ─── BOOK A DOCTOR CTA ────────────────────────────────────────────────── */}
+      <section className="bg-white py-12 sm:py-14">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className="relative overflow-hidden rounded-3xl p-8 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-center gap-7 lg:gap-12"
+            style={{ background: 'linear-gradient(135deg, #0A6070 0%, #1AADA0 100%)' }}
+          >
+            <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/10 pointer-events-none" />
+            <div className="absolute right-24 -bottom-24 w-52 h-52 rounded-full bg-white/5 pointer-events-none" />
+            <div className="relative w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center flex-shrink-0">
+              <Stethoscope className="w-8 h-8 text-white" />
+            </div>
+            <div className="relative flex-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#F0A500] mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                {t('home.book.label')}
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-light text-white leading-tight mb-3" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                {t('home.book.title')}
+              </h2>
+              <p className="text-sm sm:text-base text-white/80 max-w-2xl leading-relaxed" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                {t('home.book.desc')}
+              </p>
+            </div>
+            <Link
+              to="/book"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="relative flex-shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm bg-white text-[#0A6070] hover:bg-white/95 transition-all duration-200 shadow-lg"
+              style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+            >
+              {t('nav.support.book')}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* ─── WHAT WE DO ───────────────────────────────────────────────────────── */}
