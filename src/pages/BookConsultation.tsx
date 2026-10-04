@@ -76,7 +76,7 @@ export default function BookConsultation() {
     setLoadError('');
     const { data, error: err } = await supabase.from('consult_providers_public').select('*').order('position');
     if (err) {
-      setLoadError('We could not load the available doctors. Please refresh the page.');
+      setLoadError('We could not load the available times. Please refresh the page.');
       setLoading(false);
       return;
     }
@@ -128,7 +128,7 @@ export default function BookConsultation() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!provider || !slot) { setError('Please choose a doctor and a time first.'); return; }
+    if (!provider || !slot) { setError("Please choose who you'd like to speak with, and a time, first."); return; }
     if (!parentName.trim() || !phone.trim() || !email.trim() || !payerName.trim()) {
       setError('Please fill in your name, phone, email, and the name on the MoMo payment.');
       return;
@@ -200,7 +200,7 @@ export default function BookConsultation() {
       <section className="relative pt-28 pb-0 hero-gradient overflow-hidden">
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-[#F0A500] mb-2" style={font}>One-on-one consultation</p>
-          <h1 className="text-3xl md:text-5xl font-light text-white leading-tight" style={serif}>Book a Doctor</h1>
+          <h1 className="text-3xl md:text-5xl font-light text-white leading-tight" style={serif}>Book a quick call for preemie parent support</h1>
           <p className="text-sm text-white/75 max-w-lg mx-auto mt-3" style={font}>
             Talk to a health professional about your baby or your own wellbeing, by phone or in person at our Kigali office.
           </p>
@@ -344,7 +344,7 @@ export default function BookConsultation() {
                       </div>
                       <div>
                         <label className={lbl} style={font}>What would you like to talk about? <span className="normal-case font-medium text-[#A0B4BC]">(optional)</span></label>
-                        <textarea value={topic} onChange={e => setTopic(e.target.value)} rows={3} placeholder="A short note helps the doctor prepare." className={inp + ' resize-y'} maxLength={600} />
+                        <textarea value={topic} onChange={e => setTopic(e.target.value)} rows={3} placeholder="A short note helps us prepare for your call." className={inp + ' resize-y'} maxLength={600} />
                       </div>
                       <input type="text" name="website" value={website} onChange={e => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
                     </div>
@@ -426,7 +426,7 @@ export default function BookConsultation() {
                   </div>
                   <ol className="p-6 space-y-4">
                     {[
-                      'Choose a doctor and a time that suits you.',
+                      'Choose who you\'d like to speak with, and a time that suits you.',
                       `Pay the ${feeRef ? fmtRwf(feeRef.booking_fee) + ' ' : ''}booking fee through MoMo.`,
                       'We verify your payment and email you a confirmation.',
                       feeRef
