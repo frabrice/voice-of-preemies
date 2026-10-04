@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, Globe, Heart, Users, ArrowRight, HeartHandshake, Search } from 'lucide-react';
+import { Menu, X, ChevronDown, Globe, Heart, Users, ArrowRight, HeartHandshake, Search, Stethoscope } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import { Language } from '../translations';
-import JoinModal from './JoinModal';
+
 
 const langOptions: { code: Language; label: string; short: string }[] = [
   { code: 'en', label: 'English', short: 'EN' },
@@ -87,7 +87,6 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSearch, setMobileSearch] = useState('');
-  const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -212,27 +211,27 @@ export default function Navbar() {
                 )}
               </form>
 
-              {/* Join Peer Support Network — desktop */}
-              <button
-                onClick={() => setJoinModalOpen(true)}
+              {/* Book a Consultation — desktop */}
+              <Link
+                to="/book"
                 className="hidden xl:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0A6070] text-white text-[13px] font-bold hover:bg-[#084F5C] transition-all duration-200 shadow-sm whitespace-nowrap flex-shrink-0"
                 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
               >
-                <Users className="w-3.5 h-3.5" />
-                Join Voice of Preemies
-              </button>
+                <Stethoscope className="w-3.5 h-3.5" />
+                {t('btn.bookConsultation')}
+              </Link>
 
-              {/* Mobile: Join button + hamburger */}
+              {/* Mobile: Book button + hamburger */}
               <div className="xl:hidden flex items-center gap-2">
-                <button
-                  onClick={() => setJoinModalOpen(true)}
+                <Link
+                  to="/book"
                   className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#0A6070] text-white text-[12px] font-bold whitespace-nowrap hover:bg-[#084F5C] transition-colors"
                   style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                 >
-                  <Users className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Join Voice of Preemies</span>
-                  <span className="sm:hidden">Join</span>
-                </button>
+                  <Stethoscope className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{t('btn.bookConsultation')}</span>
+                  <span className="sm:hidden">{t('btn.bookShort')}</span>
+                </Link>
                 <button
                   onClick={() => setIsOpen(p => !p)}
                   className="p-2 rounded-lg text-[#1A2B35] hover:bg-[#F5F8FA] transition-colors"
@@ -259,14 +258,15 @@ export default function Navbar() {
                 className="h-7 w-auto brightness-0 invert"
               />
             </Link>
-            <button
-              onClick={() => { setJoinModalOpen(true); setIsOpen(false); }}
+            <Link
+              to="/book"
+              onClick={() => setIsOpen(false)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-[#0A6070] text-[12px] font-bold whitespace-nowrap hover:bg-[#EDF5F7] transition-colors flex-shrink-0"
               style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
             >
-              <Users className="w-3.5 h-3.5" />
-              Join Voice of Preemies
-            </button>
+              <Stethoscope className="w-3.5 h-3.5" />
+              {t('btn.bookConsultation')}
+            </Link>
             <button
               onClick={() => setIsOpen(p => !p)}
               className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
@@ -438,15 +438,16 @@ export default function Navbar() {
                 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
               />
             </form>
-            {/* Join peer support */}
-            <button
-              onClick={() => { setJoinModalOpen(true); setIsOpen(false); }}
+            {/* Book a consultation */}
+            <Link
+              to="/book"
+              onClick={() => setIsOpen(false)}
               className="w-full flex items-center justify-center gap-2 py-2.5 mb-4 rounded-full bg-[#0A6070] text-white text-sm font-bold hover:bg-[#084F5C] transition-colors"
               style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
             >
-              <Users className="w-4 h-4" />
-              Join Voice of Preemies
-            </button>
+              <Stethoscope className="w-4 h-4" />
+              {t('btn.bookConsultation')}
+            </Link>
           </div>
 
           <div className="px-4 pb-4 space-y-0.5">
@@ -536,7 +537,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      <JoinModal open={joinModalOpen} onClose={() => setJoinModalOpen(false)} />
     </>
   );
 }

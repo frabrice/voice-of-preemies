@@ -6,7 +6,7 @@ import {
   ChevronLeft, ChevronRight, Newspaper, Calendar, Stethoscope
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import SupportModal, { type SupportRole } from '../components/SupportModal';
+import JoinModal from '../components/JoinModal';
 import { supabase } from '../lib/supabase';
 
 const SLIDES = [
@@ -78,8 +78,7 @@ interface LatestItem { id: string; type: 'news' | 'story' | 'event'; slug: strin
 
 export default function Home() {
   const { t } = useLanguage();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalRole, setModalRole] = useState<SupportRole | undefined>(undefined);
+  const [joinOpen, setJoinOpen] = useState(false);
   const [featuredStory, setFeaturedStory] = useState<FeaturedStory | null>(null);
   const [featuredPrograms, setFeaturedPrograms] = useState<FeaturedProgram[]>([]);
   const [latestItems, setLatestItems] = useState<LatestItem[]>([]);
@@ -163,11 +162,6 @@ export default function Home() {
       if (progressRef.current) clearInterval(progressRef.current);
     };
   }, [current, goNext]);
-
-  const openModal = (role?: SupportRole) => {
-    setModalRole(role);
-    setModalOpen(true);
-  };
 
   return (
     <div>
@@ -281,8 +275,9 @@ export default function Home() {
 
             {/* CTA buttons */}
             <div className="flex flex-wrap gap-3 mb-7 sm:mb-8">
-              <button
-                onClick={() => openModal()}
+              <Link
+                to="/book"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className="group inline-flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full font-bold text-[13px] sm:text-sm text-white transition-all duration-200 shadow-lg"
                 style={{
                   background: 'linear-gradient(135deg, #0A6070 0%, #1AADA0 100%)',
@@ -290,10 +285,10 @@ export default function Home() {
                   fontFamily: 'Plus Jakarta Sans, sans-serif',
                 }}
               >
-                <Heart className="w-3.5 h-3.5 fill-white flex-shrink-0" />
-                {t('btn.getSupport')}
+                <Stethoscope className="w-3.5 h-3.5 flex-shrink-0" />
+                {t('btn.bookConsultation')}
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-              </button>
+              </Link>
               <Link
                 to="/donate#choose"
                 className="inline-flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full font-bold text-[13px] sm:text-sm bg-white text-[#0A6070] hover:bg-white/95 transition-all duration-200"
@@ -301,15 +296,14 @@ export default function Home() {
               >
                 {t('btn.donate')}
               </Link>
-              <Link
-                to="/prematurity"
+              <button
+                onClick={() => setJoinOpen(true)}
                 className="inline-flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full font-semibold text-[13px] sm:text-sm text-white border border-white/30 hover:border-white/55 hover:bg-white/10 transition-all duration-200 backdrop-blur-sm"
                 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                {t('hero.learnPrematurity')}
-                <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" />
-              </Link>
+                <Users className="w-3.5 h-3.5 flex-shrink-0" />
+                {t('btn.joinVop')}
+              </button>
             </div>
 
             {/* Progress indicators */}
@@ -370,7 +364,7 @@ export default function Home() {
               className="relative flex-shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm bg-white text-[#0A6070] hover:bg-white/95 transition-all duration-200 shadow-lg"
               style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
             >
-              {t('nav.support.book')}
+              {t('btn.bookConsultation')}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -662,7 +656,7 @@ export default function Home() {
         </div>
       </section>
 
-      <SupportModal open={modalOpen} initialRole={modalRole} onClose={() => setModalOpen(false)} />
+      <JoinModal open={joinOpen} onClose={() => setJoinOpen(false)} />
     </div>
   );
 }
