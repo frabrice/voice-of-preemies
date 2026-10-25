@@ -27,7 +27,7 @@ interface NavItemDef {
   dropdownDesc?: string;
   dropdownIcon?: React.ComponentType<{ className?: string }>;
   dropdownColor?: string;
-  /** Shown as an always-underlined call to action, e.g. Home Care. */
+  /** Shown as a softly pulsing call to action, e.g. Home Care. */
   highlight?: boolean;
 }
 
@@ -311,7 +311,7 @@ export default function Navbar() {
                         onClick={() => { setActiveDropdown(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         className={`flex items-center px-3 py-2 rounded-lg text-[13px] tracking-tight transition-colors duration-150 whitespace-nowrap ${
                           item.highlight
-                            ? 'gap-1.5 font-bold text-[#0A6070] hover:bg-[#0A6070]/5'
+                            ? 'care-cta gap-1.5 font-bold text-[#0A6070] bg-[#7C3AED]/[0.07] hover:bg-[#7C3AED]/10'
                             : `font-medium ${location.pathname === item.path
                               ? 'text-[#0A6070]'
                               : 'text-[#1A2B35] hover:text-[#0A6070] hover:bg-[#0A6070]/5'}`
@@ -319,7 +319,7 @@ export default function Navbar() {
                         style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                       >
                         {item.highlight && <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] flex-shrink-0" aria-hidden="true" />}
-                        <span className={item.highlight ? 'underline decoration-2 decoration-[#1AADA0] underline-offset-[6px]' : ''}>{item.label}</span>
+                        {item.label}
                       </Link>
                     )}
 
@@ -500,12 +500,12 @@ export default function Navbar() {
                     className={`flex items-center gap-2 px-3 py-2.5 text-sm font-semibold rounded-xl transition-colors ${
                       location.pathname === item.path
                         ? 'text-[#0A6070] bg-[#0A6070]/8'
-                        : item.highlight ? 'text-[#0A6070] hover:bg-[#0A6070]/5' : 'text-[#1A2B35] hover:text-[#0A6070] hover:bg-[#0A6070]/5'
+                        : item.highlight ? 'text-[#0A6070] bg-[#7C3AED]/[0.07] hover:bg-[#7C3AED]/10' : 'text-[#1A2B35] hover:text-[#0A6070] hover:bg-[#0A6070]/5'
                     }`}
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                   >
                     {item.highlight && <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] flex-shrink-0" aria-hidden="true" />}
-                    <span className={item.highlight ? 'underline decoration-2 decoration-[#1AADA0] underline-offset-[5px]' : ''}>{item.label}</span>
+                    {item.label}
                   </Link>
                 )}
               </div>
