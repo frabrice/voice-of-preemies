@@ -20,18 +20,23 @@ export const fmtMoney = (n: number | string | null | undefined, currency = 'USD'
 };
 
 /* ── useCrud hook ── */
-export function useCrud<T extends { id: string }>(table: string, hasDeletedAt = true) {
+export function useCrud<T extends { id: string }>(
+  table: string,
+  hasDeletedAt = true,
+  orderBy: { column: string; ascending: boolean } = { column: 'created_at', ascending: false },
+) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
+  const { column: orderColumn, ascending: orderAscending } = orderBy;
 
   const load = useCallback(async () => {
     setLoading(true);
     let query = supabase.from(table).select('*');
     if (hasDeletedAt) query = query.is('deleted_at', null);
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const { data, error } = await query.order(orderColumn, { ascending: orderAscending });
     if (!error) setItems((data ?? []) as unknown as T[]);
     setLoading(false);
-  }, [table, hasDeletedAt]);
+  }, [table, hasDeletedAt, orderColumn, orderAscending]);
 
   useEffect(() => { load(); }, [load]);
 
