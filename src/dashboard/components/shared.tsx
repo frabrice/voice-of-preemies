@@ -206,3 +206,25 @@ export function AddButton({ onClick, label = 'Add New' }: { onClick: () => void;
     </button>
   );
 }
+
+/* ── Calls to an admin-only edge function (always as the signed-in user) ── */
+export async function callAdminFunction<T = Record<string, unknown>>(fn: string, payload: Record<string, unknown>): Promise<{ data?: T; error?: string }> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { error: 'Your session has expired. Please sign in again.' };
+    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${fn}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) return { error: (body as { error?: string }).error ?? `Request failed (${res.status}).` };
+    return { data: body as T };
+  } catch {
+    return { error: 'Could not reach the server. Check your internet connection and try again.' };
+  }
+}

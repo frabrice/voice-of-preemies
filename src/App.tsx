@@ -29,6 +29,7 @@ import FormFill from './pages/FormFill';
 import CareersIndex from './pages/CareersIndex';
 import TrainingRegister from './pages/TrainingRegister';
 import BookConsultation from './pages/BookConsultation';
+import HomeCare from './pages/HomeCare';
 import CareerDetail from './pages/CareerDetail';
 
 import LoginPage from './dashboard/LoginPage';
@@ -47,6 +48,13 @@ import TrashManager from './dashboard/pages/TrashManager';
 import SubscribersPage from './dashboard/pages/SubscribersPage';
 import FormsManager from './dashboard/pages/FormsManager';
 import ConsultationsPage from './dashboard/pages/ConsultationsPage';
+import CareOverviewPage from './dashboard/pages/care/OverviewPage';
+import CareFamiliesPage from './dashboard/pages/care/FamiliesPage';
+import CareFamilyDetailPage from './dashboard/pages/care/FamilyDetailPage';
+import CareTeamPage from './dashboard/pages/care/TeamPage';
+import CareStaffDetailPage from './dashboard/pages/care/StaffDetailPage';
+import CareSchedulePage from './dashboard/pages/care/SchedulePage';
+import CarePayoutsPage from './dashboard/pages/care/PayoutsPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -93,6 +101,13 @@ function AppRoutes() {
         <Route path="/dashboard/subscribers" element={<DashboardPage component={SubscribersPage} />} />
         <Route path="/dashboard/forms" element={<DashboardPage component={FormsManager} />} />
         <Route path="/dashboard/consultations" element={<DashboardPage component={ConsultationsPage} />} />
+        <Route path="/dashboard/care" element={<DashboardPage component={CareOverviewPage} />} />
+        <Route path="/dashboard/care/families" element={<DashboardPage component={CareFamiliesPage} />} />
+        <Route path="/dashboard/care/families/:id" element={<DashboardPage component={CareFamilyDetailPage} />} />
+        <Route path="/dashboard/care/team" element={<DashboardPage component={CareTeamPage} />} />
+        <Route path="/dashboard/care/team/:id" element={<DashboardPage component={CareStaffDetailPage} />} />
+        <Route path="/dashboard/care/schedule" element={<DashboardPage component={CareSchedulePage} />} />
+        <Route path="/dashboard/care/payouts" element={<DashboardPage component={CarePayoutsPage} />} />
         <Route path="/dashboard/programs" element={<Navigate to="/dashboard/website" replace />} />
         <Route path="/dashboard/stories" element={<Navigate to="/dashboard/website" replace />} />
         <Route path="/dashboard/team" element={<Navigate to="/dashboard/database" replace />} />
@@ -144,6 +159,7 @@ function AppRoutes() {
           <Route path="/careers/:slug" element={<CareerDetail />} />
           <Route path="/register" element={<TrainingRegister />} />
           <Route path="/book" element={<BookConsultation />} />
+          <Route path="/home-care" element={<HomeCare />} />
         </Routes>
       </main>
       <Footer />

@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 
 export type UserRole = 'super_admin' | 'admin' | 'content_manager' | 'finance_manager' | 'database_manager' | 'support_agent' | 'event_coordinator';
 
-export type Permission = 'website' | 'database' | 'contact' | 'donations' | 'events' | 'documents' | 'finance' | 'users' | 'settings' | 'trash' | 'subscribers' | 'forms' | 'consultations';
+export type Permission = 'website' | 'database' | 'contact' | 'donations' | 'events' | 'documents' | 'finance' | 'users' | 'settings' | 'trash' | 'subscribers' | 'forms' | 'consultations' | 'homecare';
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   super_admin: 'Super Admin',
@@ -15,7 +15,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   event_coordinator: 'Event Coordinator',
 };
 
-export const ALL_PERMISSIONS: Permission[] = ['website', 'database', 'contact', 'donations', 'events', 'documents', 'finance', 'users', 'settings', 'trash', 'subscribers', 'forms', 'consultations'];
+export const ALL_PERMISSIONS: Permission[] = ['website', 'database', 'contact', 'donations', 'events', 'documents', 'finance', 'users', 'settings', 'trash', 'subscribers', 'forms', 'consultations', 'homecare'];
 
 interface AdminAuthContextType {
   isAuthenticated: boolean;
@@ -25,7 +25,7 @@ interface AdminAuthContextType {
   loading: boolean;
   can: (permission: Permission) => boolean;
   canCrud: (permission: Permission, action: 'view' | 'create' | 'edit' | 'delete') => boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<string | null>;
   logout: () => void;
   logActivity: (action: string, entityType: string, entityId?: string, details?: Record<string, unknown>) => Promise<void>;
 }
@@ -42,6 +42,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserRole = async (email: string) => {
     const { data } = await supabase.from('user_roles').select('role, display_name, status').eq('email', email).maybeSingle();
+    if (data?.status === 'suspended') { await supabase.auth.signOut(); return; }
     if (data?.role) setAdminRole(data.role as UserRole);
     if (data?.display_name) setDisplayName(data.display_name);
     else setDisplayName(email.split('@')[0]);
@@ -92,9 +93,25 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return !error;
+  // Returns null on success, otherwise a message to show the person signing in.
+  const login = async (email: string, password: string): Promise<string | null> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      return /banned|suspend/i.test(error.message)
+        ? 'This account has been suspended. Please contact a Super Admin.'
+        : 'Invalid credentials. Please try again.';
+    }
+    // A login only counts if it belongs to an active dashboard user.
+    const { data: role } = await supabase.from('user_roles').select('status').eq('user_id', data.user.id).maybeSingle();
+    if (!role) {
+      await supabase.auth.signOut();
+      return 'This account does not have dashboard access. Please contact a Super Admin.';
+    }
+    if (role.status === 'suspended') {
+      await supabase.auth.signOut();
+      return 'This account has been suspended. Please contact a Super Admin.';
+    }
+    return null;
   };
 
   const logout = async () => {

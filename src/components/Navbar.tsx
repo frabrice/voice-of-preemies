@@ -59,6 +59,7 @@ const getNavItems = (t: (k: string) => string): NavItemDef[] => [
       { label: t('nav.support.bereavement'), path: '/support', hash: 'bereavement', desc: t('nav.support.bereavement.desc') },
       { label: t('nav.support.request'), path: '/support', hash: 'request', desc: t('nav.support.request.desc') },
       { label: t('nav.support.book'), path: '/book', hash: 'top', desc: t('nav.support.book.desc') },
+      { label: t('nav.support.care'), path: '/home-care', hash: 'top', desc: t('nav.support.care.desc') },
     ],
   },
   { label: t('nav.programs'), path: '/programs' },

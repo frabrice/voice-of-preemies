@@ -17,10 +17,10 @@ export default function LoginPage() {
     setError('');
     if (!email || !password) { setError('Please enter your email and password.'); return; }
     setLoading(true);
-    const ok = await login(email, password);
+    const problem = await login(email.trim(), password);
     setLoading(false);
-    if (ok) navigate('/dashboard');
-    else setError('Invalid credentials. Please try again.');
+    if (problem) setError(problem);
+    else navigate('/dashboard');
   };
 
   return (

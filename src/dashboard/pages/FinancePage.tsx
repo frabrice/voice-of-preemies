@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Wallet, TrendingUp, TrendingDown, Tags, FolderKanban, Pencil, Trash2, Download, BarChart3, DollarSign } from 'lucide-react';
 import TabBar from '../components/TabBar';
+import CareFinanceCard from './care/CareFinanceCard';
 import { useCrud, EmptyState, SearchInput, fmtDate, fmtMoney, inp, ta, Lbl, AddButton, SummaryCard, StatusBadge } from '../components/shared';
 
 const tabs = [
@@ -45,6 +46,8 @@ function OverviewTab() {
         <SummaryCard icon={Wallet} label="Net Balance" value={fmtMoney(balance)} gradient="from-blue-500 to-sky-400" />
         <SummaryCard icon={FolderKanban} label="Active Projects" value={String(projects.filter(p => p.status === 'active').length)} gradient="from-violet-500 to-purple-400" />
       </div>
+
+      <CareFinanceCard />
 
       <div>
         <h3 className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Recent Transactions</h3>

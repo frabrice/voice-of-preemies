@@ -37,7 +37,7 @@ export interface ContactInfo {
 }
 
 export async function loadContactInfo(supabaseUrl: string, serviceKey: string): Promise<ContactInfo> {
-  const fallback: ContactInfo = { phone: "+250799534957", email: ADMIN_EMAIL, address: "Kigali, Rwanda" };
+  const fallback: ContactInfo = { phone: "+250799534956", email: ADMIN_EMAIL, address: "Kigali, Rwanda" };
   try {
     const res = await fetch(
       `${supabaseUrl}/rest/v1/site_settings?select=org_phone,org_email,org_address&limit=1`,

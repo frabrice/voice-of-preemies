@@ -1,18 +1,21 @@
 import { useState, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAdminAuth, UserRole, ROLE_LABELS } from '../contexts/AdminAuthContext';
+import { useAdminAuth, UserRole, ROLE_LABELS, Permission } from '../contexts/AdminAuthContext';
 import {
   LayoutDashboard, Globe, Database, Mail, Heart,
   CalendarDays, FolderOpen, Wallet, Users, Settings as SettingsIcon,
   LogOut, ExternalLink, Menu, X, ChevronLeft, ChevronRight, Trash2, ShieldCheck, Send, ClipboardList, Stethoscope,
+  HeartHandshake, UsersRound, UserRoundCheck, CalendarRange, Banknote, KeyRound,
 } from 'lucide-react';
+import ChangePasswordModal from './components/ChangePasswordModal';
 
 interface NavItem {
   label: string;
   path: string;
   icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   color: string;
-  permission: 'website' | 'database' | 'contact' | 'donations' | 'events' | 'documents' | 'finance' | 'users' | 'settings' | 'trash' | 'subscribers' | 'forms' | 'consultations';
+  permission: Permission;
+  group?: string;
 }
 
 const navItems: NavItem[] = [
@@ -24,6 +27,11 @@ const navItems: NavItem[] = [
   { label: 'Events',    path: '/dashboard/events',      icon: CalendarDays,    color: 'from-indigo-500 to-blue-400',    permission: 'events' },
   { label: 'Forms',     path: '/dashboard/forms',       icon: ClipboardList,   color: 'from-fuchsia-500 to-pink-400',  permission: 'forms' },
   { label: 'Consultations', path: '/dashboard/consultations', icon: Stethoscope, color: 'from-sky-500 to-teal-400',     permission: 'consultations' },
+  { label: 'Home Care',  path: '/dashboard/care',          icon: HeartHandshake,  color: 'from-pink-500 to-rose-400',     permission: 'homecare', group: 'Home Care' },
+  { label: 'Families',   path: '/dashboard/care/families', icon: UsersRound,      color: 'from-violet-500 to-fuchsia-400', permission: 'homecare', group: 'Home Care' },
+  { label: 'Care Team',  path: '/dashboard/care/team',     icon: UserRoundCheck,  color: 'from-teal-500 to-emerald-400',   permission: 'homecare', group: 'Home Care' },
+  { label: 'Schedule',   path: '/dashboard/care/schedule', icon: CalendarRange,   color: 'from-sky-500 to-indigo-400',     permission: 'homecare', group: 'Home Care' },
+  { label: 'Payouts',    path: '/dashboard/care/payouts',  icon: Banknote,        color: 'from-amber-500 to-orange-400',   permission: 'homecare', group: 'Home Care' },
   { label: 'Documents',path: '/dashboard/documents',   icon: FolderOpen,      color: 'from-orange-500 to-amber-400',   permission: 'documents' },
   { label: 'Finance',   path: '/dashboard/finance',     icon: Wallet,          color: 'from-emerald-500 to-green-400', permission: 'finance' },
   { label: 'Subscribers', path: '/dashboard/subscribers', icon: Send,          color: 'from-cyan-500 to-sky-400',       permission: 'subscribers' },
@@ -35,13 +43,16 @@ const navItems: NavItem[] = [
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pwOpen, setPwOpen] = useState(false);
   const { adminEmail, adminRole, displayName, can, logout } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogout = () => { logout(); navigate('/dashboard/login'); };
   const visibleItems = navItems.filter(n => n.permission === 'website' && n.path === '/dashboard' ? true : can(n.permission));
-  const activeItem = visibleItems.find(n => n.path === location.pathname);
+  // Detail pages (e.g. /dashboard/care/families/:id) keep their section highlighted: the longest matching path wins.
+  const isActivePath = (n: NavItem) => location.pathname === n.path || (n.path !== '/dashboard' && location.pathname.startsWith(n.path + '/'));
+  const activeItem = [...visibleItems].filter(isActivePath).sort((a, b) => b.path.length - a.path.length)[0];
 
   const SidebarInner = ({ mobile = false }: { mobile?: boolean }) => (
     <div className="flex flex-col h-full min-h-0">
@@ -67,11 +78,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto px-2 py-2 space-y-0.5 scrollbar-thin">
-        {visibleItems.map((item) => {
-          const active = location.pathname === item.path;
+        {visibleItems.map((item, i) => {
+          const active = activeItem?.path === item.path;
+          const showGroup = item.group && visibleItems[i - 1]?.group !== item.group;
           return (
+            <div key={item.path}>
+              {showGroup && ((!collapsed || mobile)
+                ? <p className="px-2.5 pt-3 pb-1 text-[9px] font-bold uppercase tracking-widest text-[#94A3B8]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{item.group}</p>
+                : <div className="my-2 mx-2 h-px bg-slate-200" />)}
             <Link
-              key={item.path}
               to={item.path}
               onClick={() => mobile && setMobileOpen(false)}
               title={collapsed && !mobile ? item.label : undefined}
@@ -88,6 +103,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 </>
               )}
             </Link>
+            </div>
           );
         })}
       </nav>
@@ -114,14 +130,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 <p className="text-[9px] text-[#0A6070] font-semibold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{ROLE_LABELS[adminRole as UserRole] ?? adminRole}</p>
               </div>
             </div>
+            <button onClick={() => setPwOpen(true)} title="Change my password" className="p-1 rounded-lg text-[#94A3B8] hover:text-[#0A6070] hover:bg-white transition-all flex-shrink-0">
+              <KeyRound style={{ width: 13, height: 13 }} />
+            </button>
             <button onClick={handleLogout} title="Sign Out" className="p-1 rounded-lg text-[#94A3B8] hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0">
               <LogOut style={{ width: 13, height: 13 }} />
             </button>
           </div>
         ) : (
+          <>
+          <button onClick={() => setPwOpen(true)} title="Change my password" className="w-full flex items-center justify-center px-2.5 py-2 rounded-xl text-[#94A3B8] hover:text-[#0A6070] hover:bg-white transition-all">
+            <KeyRound style={{ width: 14, height: 14 }} />
+          </button>
           <button onClick={handleLogout} title="Sign Out" className="w-full flex items-center justify-center px-2.5 py-2 rounded-xl text-[#94A3B8] hover:text-red-500 hover:bg-red-50 transition-all">
             <LogOut style={{ width: 14, height: 14 }} />
           </button>
+          </>
         )}
       </div>
     </div>
@@ -179,6 +203,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
+      {pwOpen && <ChangePasswordModal onClose={() => setPwOpen(false)} />}
     </div>
   );
 }

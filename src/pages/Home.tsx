@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Heart, Users, Building2, BookOpen, ArrowRight,
   Globe, Shield, HandHeart, Sparkles,
-  ChevronLeft, ChevronRight, Newspaper, Calendar, Stethoscope
+  ChevronLeft, ChevronRight, Newspaper, Calendar, Stethoscope, HeartHandshake
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import JoinModal from '../components/JoinModal';
@@ -79,9 +79,18 @@ interface LatestItem { id: string; type: 'news' | 'story' | 'event'; slug: strin
 export default function Home() {
   const { t } = useLanguage();
   const [joinOpen, setJoinOpen] = useState(false);
+  const [carePrices, setCarePrices] = useState<{ nurse: number; caregiver: number }>({ nurse: 50000, caregiver: 30000 });
   const [featuredStory, setFeaturedStory] = useState<FeaturedStory | null>(null);
   const [featuredPrograms, setFeaturedPrograms] = useState<FeaturedProgram[]>([]);
   const [latestItems, setLatestItems] = useState<LatestItem[]>([]);
+
+  useEffect(() => {
+    supabase.from('care_prices_public').select('code, rate_per_shift').then(({ data }) => {
+      if (!data?.length) return;
+      const m = Object.fromEntries(data.map(r => [r.code as string, r.rate_per_shift as number]));
+      setCarePrices(p => ({ nurse: m.nurse ?? p.nurse, caregiver: m.caregiver ?? p.caregiver }));
+    });
+  }, []);
 
   useEffect(() => {
     supabase
@@ -365,6 +374,41 @@ export default function Home() {
               style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
             >
               {t('btn.bookConsultation')}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── HOME CARE CTA ────────────────────────────────────────────────────── */}
+      <section className="bg-white pb-12 sm:pb-14">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border border-[#E8F0F2] bg-[#FBF8F3] p-8 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-center gap-7 lg:gap-12">
+            <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #0A6070 100%)' }}>
+              <HeartHandshake className="w-8 h-8 text-white" />
+            </div>
+            <div className="relative flex-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#7C3AED] mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                {t('home.care.label')}
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-light text-[#1A2B35] leading-tight mb-3" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                {t('home.care.title')}
+              </h2>
+              <p className="text-sm sm:text-base text-[#5A7280] max-w-2xl leading-relaxed" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                {t('home.care.desc')}
+              </p>
+              <div className="flex flex-wrap gap-2.5 mt-5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                <span className="px-3.5 py-1.5 rounded-full bg-white border border-[#E8F0F2] text-xs font-semibold text-[#1A2B35]">{t('care.nurse.name')} · <b className="text-[#0A6070]">{carePrices.nurse.toLocaleString('en-US')} RWF</b> {t('home.care.perShift')}</span>
+                <span className="px-3.5 py-1.5 rounded-full bg-white border border-[#E8F0F2] text-xs font-semibold text-[#1A2B35]">{t('care.cg.name')} · <b className="text-[#7C3AED]">{carePrices.caregiver.toLocaleString('en-US')} RWF</b> {t('home.care.perShift')}</span>
+              </div>
+            </div>
+            <Link
+              to="/home-care"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="relative flex-shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm text-white shadow-lg hover:opacity-95 transition-all duration-200"
+              style={{ background: 'linear-gradient(135deg, #0A6070 0%, #1AADA0 100%)', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+            >
+              {t('btn.homeCare')}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

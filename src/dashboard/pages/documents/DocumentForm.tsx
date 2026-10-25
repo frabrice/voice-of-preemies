@@ -12,6 +12,8 @@ interface Props {
   addCategory: DocsApi['addCategory'];
   onClose: () => void;
   onSaved: (message: string) => void;
+  /** Extra columns saved with the document, e.g. the Home Care family or worker it belongs to. */
+  extra?: Record<string, unknown>;
 }
 
 const BLANK: Partial<Doc> = {
@@ -19,7 +21,7 @@ const BLANK: Partial<Doc> = {
   file_name: null, file_type: 'other', file_size: '', access_level: 'internal',
 };
 
-export default function DocumentForm({ initial, cats, addCategory, onClose, onSaved }: Props) {
+export default function DocumentForm({ initial, cats, addCategory, onClose, onSaved, extra }: Props) {
   const [d, setD] = useState<Partial<Doc>>({ ...BLANK, ...initial });
   const originalPath = initial.storage_path ?? null;
   const isEdit = !!initial.id;
@@ -93,6 +95,7 @@ export default function DocumentForm({ initial, cats, addCategory, onClose, onSa
       file_size: d.storage_path ? (d.file_size ?? '') : '',
       access_level: d.access_level ?? 'internal',
       updated_at: new Date().toISOString(),
+      ...(extra ?? {}),
     };
     const { error: dbErr } = isEdit
       ? await supabase.from('documents').update(row).eq('id', initial.id!)

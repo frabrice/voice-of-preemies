@@ -155,7 +155,7 @@ export default function TrainingRegister() {
                   <Phone className="w-4 h-4 text-[#94A3B8] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1" style={font}>Questions? Call</p>
-                    <p className="text-sm text-[#1A2B35] font-semibold">+250 799 534 957 · +250 780 849 228</p>
+                    <p className="text-sm text-[#1A2B35] font-semibold">+250 799 534 956 · +250 780 849 228</p>
                   </div>
                 </div>
               </div>
