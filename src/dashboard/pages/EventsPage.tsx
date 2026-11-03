@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { CalendarDays, List, UserCheck, Pencil, Trash2, ChevronLeft, ChevronRight, Star, ExternalLink, CreditCard, CheckCircle2 } from 'lucide-react';
+import { CalendarDays, List, UserCheck, Pencil, Trash2, ChevronLeft, ChevronRight, Star, ExternalLink, CreditCard, CheckCircle2, GraduationCap } from 'lucide-react';
 import TabBar from '../components/TabBar';
 import { useCrud, StatusBadge, EmptyState, SearchInput, fmtDate, fmtDateTime, inp, ta, Lbl, AddButton, notifyPublication, notifyRegistrationConfirmed } from '../components/shared';
 import { ImageUploadField, MultiImageUploadField } from '../components/UploadField';
+import NurseTrainingTab from './NurseTrainingTab';
 
 function toSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -14,6 +15,7 @@ const tabs = [
   { id: 'all', label: 'All Events', icon: List },
   { id: 'registrations', label: 'Registrations', icon: UserCheck },
   { id: 'training', label: 'Training Registrations', icon: CreditCard },
+  { id: 'nurses', label: 'Nurse Training', icon: GraduationCap },
 ];
 
 function CalendarTab() {
@@ -325,6 +327,7 @@ export default function EventsPage() {
         {active === 'all' && <AllEventsTab />}
         {active === 'registrations' && <RegistrationsTab />}
         {active === 'training' && <TrainingRegistrationsTab />}
+        {active === 'nurses' && <NurseTrainingTab />}
       </div>
     </div>
   );

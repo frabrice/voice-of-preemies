@@ -28,6 +28,7 @@ import FormsIndex from './pages/FormsIndex';
 import FormFill from './pages/FormFill';
 import CareersIndex from './pages/CareersIndex';
 import TrainingRegister from './pages/TrainingRegister';
+import NurseTraining from './pages/NurseTraining';
 import BookConsultation from './pages/BookConsultation';
 import HomeCare from './pages/HomeCare';
 import CareerDetail from './pages/CareerDetail';
@@ -158,6 +159,7 @@ function AppRoutes() {
           <Route path="/careers" element={<CareersIndex />} />
           <Route path="/careers/:slug" element={<CareerDetail />} />
           <Route path="/register" element={<TrainingRegister />} />
+          <Route path="/nurse-training" element={<NurseTraining />} />
           <Route path="/book" element={<BookConsultation />} />
           <Route path="/home-care" element={<HomeCare />} />
         </Routes>

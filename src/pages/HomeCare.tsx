@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Phone, Sun, Moon, Check, CheckCircle2, Loader2, Stethoscope, HeartHandshake, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Phone, Sun, Moon, Check, CheckCircle2, Loader2, Stethoscope, HeartHandshake, ShieldCheck, ArrowRight, GraduationCap } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 import { fmtRwf } from '../lib/consult';
@@ -246,6 +247,22 @@ export default function HomeCare() {
               </button>
             </form>
           )}
+        </div>
+      </section>
+
+      {/* Training for nurses */}
+      <section className="bg-white pt-4 pb-12">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-[#E8F0F2] bg-[#FBF8F3] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-5">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #0A6070 100%)' }}><GraduationCap className="w-6 h-6 text-white" /></div>
+            <div className="flex-1">
+              <h3 className="text-xl font-light text-[#1A2B35]" style={serif}>{t('care.training.title')}</h3>
+              <p className="text-sm text-[#5A7280] mt-1 leading-relaxed" style={font}>{t('care.training.desc')}</p>
+            </div>
+            <Link to="/nurse-training" onClick={() => window.scrollTo({ top: 0 })} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-bold text-xs text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0A6070 0%, #1AADA0 100%)', ...font }}>
+              {t('care.training.cta')} <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
       </section>
 
